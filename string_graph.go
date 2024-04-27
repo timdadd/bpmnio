@@ -1,4 +1,4 @@
-package BPMNIO
+package bpmnio
 
 type stringGraph struct {
 	edges    map[string][]string

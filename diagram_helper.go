@@ -1,4 +1,4 @@
-package BPMNIO
+package bpmnio
 
 //func (definition *Definition) BuildShapeBoundsMap() {
 //	definition._shapeBoundsMap = map[string]Bounds{}

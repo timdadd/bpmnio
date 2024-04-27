@@ -1,4 +1,4 @@
-package BPMNIO
+package bpmnio
 
 import (
 	"encoding/xml"
