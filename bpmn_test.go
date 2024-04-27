@@ -3,6 +3,7 @@ package bpmnio
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"strings"
 	"testing"
@@ -121,29 +122,37 @@ func compareDefinitions(t *testing.T, d1 *Definition, d2 *Definition) {
 }
 
 func compareBaseElements(t *testing.T, b1 BaseElement, b2 BaseElement) {
-	var ok = "OK"
-	if b1.GetId() != b2.GetId() || b1.GetName() != b2.GetName() {
-		ok = "NOT OK"
-	}
-	for i, oa := range b1.GetOutgoingAssociations() {
-		if oa != b2.GetOutgoingAssociations()[i] {
-			ok = "NOT OK"
-		}
-	}
-	for i, ia := range b1.GetIncomingAssociations() {
-		if ia != b2.GetIncomingAssociations()[i] {
-			ok = "NOT OK"
-		}
-	}
-	t.Logf("%s --> %s", b1.ToString(), ok)
+	assert.Equal(t, b1.GetId(), b2.GetId())
+	assert.Equal(t, b1.GetName(), b2.GetName())
+	assert.Equal(t, b1.GetOutgoingAssociations(), b2.GetOutgoingAssociations())
+	assert.Equal(t, b1.GetIncomingAssociations(), b2.GetIncomingAssociations())
+	//var ok = "OK"
+	//if b1.GetId() != b2.GetId() || b1.GetName() != b2.GetName() {
+	//	ok = "NOT OK"
+	//}
+	//for i, oa := range b1.GetOutgoingAssociations() {
+	//	if oa != b2.GetOutgoingAssociations()[i] {
+	//		ok = "NOT OK"
+	//	}
+	//}
+	//for i, ia := range b1.GetIncomingAssociations() {
+	//	if ia != b2.GetIncomingAssociations()[i] {
+	//		ok = "NOT OK"
+	//	}
+	//}
+	//t.Logf("%s --> %s", b1.ToString(), ok)
 
 	for i, r1 := range b1.GetRules() {
 		r2 := b2.GetRules()[i]
-		ok = "OK"
-		if r1.Id != r2.Id || r1.Name != r2.Name || r1.Type != r2.Type || r1.Description != r2.Description {
-			ok = "NOT OK"
-		}
-		t.Logf(".. %s rule %s (%s) --> %s", r1.Type, r1.Id, r1.Name, ok)
+		assert.Equal(t, r1.Id, r2.Id)
+		assert.Equal(t, r1.Name, r2.Name)
+		assert.Equal(t, r1.Type, r2.Type)
+		assert.Equal(t, r1.Description, r2.Description)
+		//ok = "OK"
+		//if r1.Id != r2.Id || r1.Name != r2.Name || r1.Type != r2.Type || r1.Description != r2.Description {
+		//	ok = "NOT OK"
+		//}
+		//t.Logf(".. %s rule %s (%s) --> %s", r1.Type, r1.Id, r1.Name, ok)
 	}
 
 }
