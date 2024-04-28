@@ -620,9 +620,9 @@ func GetRules(extensionElements *ExtensionElements) []*Rule {
 	return nil
 }
 
-func (et *ElementType) ToCamelCase(lowerCaseFirst bool) string {
+func (et ElementType) ToCamelCase(lowerCaseFirst bool) string {
 	n := strings.Builder{}
-	var s = string(*et)
+	var s = string(et)
 	n.Grow(len(s))
 	isUpperCaseNext := !lowerCaseFirst
 	isLastUpperCase := false

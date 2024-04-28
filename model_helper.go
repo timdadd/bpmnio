@@ -27,11 +27,12 @@ func FindSourceRefs(sequenceFlows []*SequenceFlow, id string) (ret []string) {
 }
 
 // FindBaseElementsByType finds all BaseElements that have a specific Type
-func (d *Definition) FindBaseElementsByType(t ElementType) (elements []*BaseElement) {
+// Interfaces are just pointers and types so no need for *
+func (d *Definition) FindBaseElementsByType(t ElementType) (elements []BaseElement) {
 	// Create a function that checks the type and appends if found
 	appendType := func(element BaseElement) bool {
 		if element.GetType() == t {
-			elements = append(elements, &element)
+			elements = append(elements, element)
 		}
 		return true
 	}
@@ -40,18 +41,18 @@ func (d *Definition) FindBaseElementsByType(t ElementType) (elements []*BaseElem
 }
 
 // FindBaseElementById finds all BaseElements that have a specific ID
-func (d *Definition) FindBaseElementById(id string) (element *BaseElement) {
+func (d *Definition) FindBaseElementById(id string) (element BaseElement) {
 	d.BpmnIdBaseElementMap()
 	if be, inMap := d._BaseElementMap[id]; inMap {
-		return &be
+		return be
 	}
 	return nil
 }
 
 // FindBaseElementsByTypeId checks the type as well
-func (d *Definition) FindBaseElementsByTypeId(t ElementType, id string) (elements *BaseElement) {
+func (d *Definition) FindBaseElementsByTypeId(t ElementType, id string) (elements BaseElement) {
 	if be, inMap := d._BaseElementMap[id]; inMap && be.GetType() == t {
-		return &be
+		return be
 	}
 	return nil
 }
