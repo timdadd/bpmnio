@@ -83,19 +83,33 @@ func TestBPMNXML(t *testing.T) {
 		for _, p := range origD.Processes {
 			t.Logf("\nProcess FLow:%s", p.ToString())
 			//t.Logf("Sequence Flows:%v", p.SequenceFlows)
-			for _, be := range p.Flow() {
+			for _, be := range p.Flow(false) {
 				var rules []string
 				for _, r := range be.GetRules() {
 					rules = append(rules, fmt.Sprintf("(%s) %s %s", r.Type, r.Name, r.Description))
 				}
 
-				t.Logf("  %s: %s : %s : %s",
-					origD.GroupName(be),
-					be.GetName(),
-					strings.Join(rules, ", "),
-					origD.ParentName(be))
+				if be.GetType() == B2SequenceFlow {
+					t.Logf("  %s: %s: %s : %s : %s",
+						origD.GroupName(be),
+						be.GetType(),
+						be.GetName(),
+						strings.Join(rules, ", "),
+						origD.ParentName(be))
+				} else {
+					t.Logf("  %s: %s: %s : %s : %s",
+						origD.GroupName(be),
+						be.GetType(),
+						be.GetName(),
+						strings.Join(rules, ", "),
+						origD.ParentName(be))
+				}
 			}
 		}
+
+		// Check we can't find a baseElement
+		be := origD.FindBaseElementById("tim")
+		assert.Nil(t, be, "could not find base element should be NIL")
 
 		break
 	}

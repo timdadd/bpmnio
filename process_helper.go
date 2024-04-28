@@ -54,9 +54,12 @@ func (p *Process) sortFlow(node string, visited map[string]bool, edges map[strin
 	*sorted = append([]string{node}, *sorted...)
 }
 
-func (p *Process) Flow() (flow []BaseElement) {
+// Flow converts the BPMN elements into Nodes & Links and then returns a sequential flow
+// using a deepest first sort
+func (p *Process) Flow(includeLinks bool) (flow []BaseElement) {
 	nodeMap := p.FindNodes()
 	linkMap := p.FindLinks()
+	sourceNodeLinkMap := make(map[string][]BaseElement)
 
 	g := &stringGraph{
 		edges:    make(map[string][]string, len(nodeMap)), // Node n connects to nodes m,o,p...
@@ -81,14 +84,20 @@ func (p *Process) Flow() (flow []BaseElement) {
 		if fromNode, sourceInMap := nodeMap[sourceRef]; sourceInMap {
 			if toNode, targetInMap := nodeMap[targetRef]; targetInMap {
 				g.addEdge(fromNode.GetId(), toNode.GetId())
+				if includeLinks {
+					sourceNodeLinkMap[fromNode.GetId()] = append(sourceNodeLinkMap[fromNode.GetId()], l)
+				}
 			}
 		}
 	}
 	result := g.topologicalSort()
 
-	flow = make([]BaseElement, len(result))
-	for i, r := range result {
-		flow[i] = nodeMap[r]
+	//flow = make([]BaseElement, len(result))
+	for _, r := range result {
+		flow = append(flow, nodeMap[r])
+		for _, f := range sourceNodeLinkMap[r] {
+			flow = append(flow, f)
+		}
 	}
 	return
 }
