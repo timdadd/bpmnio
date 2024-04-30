@@ -154,6 +154,8 @@ type Process struct {
 	ManualTasks                  []*ManualTask             `xml:"manualTask"`
 	ServiceTasks                 []*ServiceTask            `xml:"serviceTask"`
 	UserTasks                    []*UserTask               `xml:"userTask"`
+	ReceiveTasks                 []*ReceiveTask            `xml:"receiveTask"`
+	SendTasks                    []*SendTask               `xml:"sendTask"`
 	BusinessRuleTasks            []*BusinessRuleTask       `xml:"businessRuleTask"`
 	CallActivities               []*CallActivity           `xml:"callActivity"`
 	ParallelGateways             []*ParallelGateway        `xml:"parallelGateway"`
@@ -208,6 +210,8 @@ type SubProcess struct {
 	ManualTasks             []*ManualTask             `xml:"manualTask"`
 	ServiceTasks            []*ServiceTask            `xml:"serviceTask"`
 	BusinessRuleTasks       []*BusinessRuleTask       `xml:"businessRuleTask"`
+	ReceiveTasks            []*ReceiveTask            `xml:"receiveTasks"`
+	SendTasks               []*SendTask               `xml:"sendTask"`
 	UserTasks               []*UserTask               `xml:"userTask"`
 	CallActivities          []*CallActivity           `xml:"callActivity"`
 	ParallelGateways        []*ParallelGateway        `xml:"parallelGateway"`
@@ -310,6 +314,38 @@ type ScriptTask struct {
 // BusinessRuleTask has same attributes as Task + scriptFormat & script
 type BusinessRuleTask struct {
 	XMLName              xml.Name           `xml:"businessRuleTask"`
+	Id                   string             `xml:"id,attr"`
+	Name                 string             `xml:"name,attr"`
+	Default              string             `xml:"default,attr"`
+	StartQuantity        int                `xml:"startQuantity,attr"`
+	CompletionQuantity   int                `xml:"completionQuantity,attr"`
+	IsForCompensation    bool               `xml:"isForCompensation,attr"`
+	OperationRef         string             `xml:"operationRef,attr"`
+	IncomingAssociations []string           `xml:"incoming"`
+	OutgoingAssociations []string           `xml:"outgoing"`
+	Documentation        string             `xml:"documentation"`
+	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
+}
+
+// ReceiveTask has same attributes as Task + scriptFormat & script
+type ReceiveTask struct {
+	XMLName              xml.Name           `xml:"receiveTask"`
+	Id                   string             `xml:"id,attr"`
+	Name                 string             `xml:"name,attr"`
+	Default              string             `xml:"default,attr"`
+	StartQuantity        int                `xml:"startQuantity,attr"`
+	CompletionQuantity   int                `xml:"completionQuantity,attr"`
+	IsForCompensation    bool               `xml:"isForCompensation,attr"`
+	OperationRef         string             `xml:"operationRef,attr"`
+	IncomingAssociations []string           `xml:"incoming"`
+	OutgoingAssociations []string           `xml:"outgoing"`
+	Documentation        string             `xml:"documentation"`
+	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
+}
+
+// SendTask has same attributes as Task + scriptFormat & script
+type SendTask struct {
+	XMLName              xml.Name           `xml:"sendTask"`
 	Id                   string             `xml:"id,attr"`
 	Name                 string             `xml:"name,attr"`
 	Default              string             `xml:"default,attr"`

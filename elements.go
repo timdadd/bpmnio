@@ -25,6 +25,8 @@ const (
 	B2ManualTask             ElementType = "MANUAL_TASK"
 	B2ScriptTask             ElementType = "SCRIPT_TASK"
 	B2UserTask               ElementType = "USER_TASK"
+	B2ReceiveTask            ElementType = "RECEIVE_TASK"
+	B2SendTask               ElementType = "SEND_TASK"
 	B2BusinessRuleTask       ElementType = "BUSINESS_RULE_TASK"
 	B2ServiceTask            ElementType = "SERVICE_TASK"
 	B2ParallelGateway        ElementType = "PARALLEL_GATEWAY"
@@ -483,6 +485,54 @@ func (brt *BusinessRuleTask) GetXMLName() xml.Name { return brt.XMLName }
 func (brt *BusinessRuleTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2BusinessRuleTask, brt.Id, brt.Name, len(brt.IncomingAssociations), len(brt.OutgoingAssociations))
+}
+
+// *** ReceiveTask methods ***
+func (brt *ReceiveTask) GetId() string {
+	return brt.Id
+}
+func (brt *ReceiveTask) GetName() string {
+	return brt.Name
+}
+func (brt *ReceiveTask) GetDocumentation() string { return brt.Documentation }
+func (brt *ReceiveTask) GetIncomingAssociations() []string {
+	return brt.IncomingAssociations
+}
+func (brt *ReceiveTask) GetOutgoingAssociations() []string {
+	return brt.OutgoingAssociations
+}
+func (brt *ReceiveTask) GetRules() []*Rule { return GetRules(brt.ExtensionElements) }
+func (brt *ReceiveTask) GetType() ElementType {
+	return B2ReceiveTask
+}
+func (brt *ReceiveTask) GetXMLName() xml.Name { return brt.XMLName }
+func (brt *ReceiveTask) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2ReceiveTask, brt.Id, brt.Name, len(brt.IncomingAssociations), len(brt.OutgoingAssociations))
+}
+
+// *** SendTask methods ***
+func (brt *SendTask) GetId() string {
+	return brt.Id
+}
+func (brt *SendTask) GetName() string {
+	return brt.Name
+}
+func (brt *SendTask) GetDocumentation() string { return brt.Documentation }
+func (brt *SendTask) GetIncomingAssociations() []string {
+	return brt.IncomingAssociations
+}
+func (brt *SendTask) GetOutgoingAssociations() []string {
+	return brt.OutgoingAssociations
+}
+func (brt *SendTask) GetRules() []*Rule { return GetRules(brt.ExtensionElements) }
+func (brt *SendTask) GetType() ElementType {
+	return B2SendTask
+}
+func (brt *SendTask) GetXMLName() xml.Name { return brt.XMLName }
+func (brt *SendTask) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2SendTask, brt.Id, brt.Name, len(brt.IncomingAssociations), len(brt.OutgoingAssociations))
 }
 
 // *** CallActivity methods ***

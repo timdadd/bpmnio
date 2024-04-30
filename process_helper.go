@@ -110,6 +110,8 @@ func (p *Process) FindNodes() map[string]BaseElement {
 		B2ServiceTask:            true,
 		B2ManualTask:             true,
 		B2UserTask:               true,
+		B2ReceiveTask:            true,
+		B2SendTask:               true,
 		B2BusinessRuleTask:       true,
 		B2CallActivity:           true,
 		B2StartEvent:             true,

@@ -166,6 +166,12 @@ func (p *Process) ApplyFunctionToBaseElements(f func(element BaseElement) bool) 
 		for _, businessRuleTask := range p.BusinessRuleTasks {
 			f(businessRuleTask)
 		}
+		for _, receiveTask := range p.ReceiveTasks {
+			f(receiveTask)
+		}
+		for _, sendTask := range p.SendTasks {
+			f(sendTask)
+		}
 		for _, serviceTask := range p.ServiceTasks {
 			f(serviceTask)
 		}
@@ -225,6 +231,12 @@ func (sp *SubProcess) ApplyFunctionToBaseElements(f func(element BaseElement) bo
 		}
 		for _, businessRuleTask := range sp.BusinessRuleTasks {
 			f(businessRuleTask)
+		}
+		for _, receiveTask := range sp.ReceiveTasks {
+			f(receiveTask)
+		}
+		for _, sendTask := range sp.SendTasks {
+			f(sendTask)
 		}
 		for _, callActivity := range sp.CallActivities {
 			f(callActivity)

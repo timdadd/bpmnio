@@ -31,25 +31,25 @@ func TestBPMNXML(t *testing.T) {
 		}
 
 		// Now unmarshall into structs
-		var origD Definition
-		if err = xml.Unmarshal(bpmnXML, &origD); err != nil {
+		var origD *Definition
+		if origD, err = NewDefinition(bpmnXML); err != nil {
 			t.Fatalf("could not unmarshal XML into definitions, got %v", err)
 		}
 		//origD.Processes[0].TopologicalSort(false)
 		t.Logf("%v", origD)
 		// Now marshall back again into XML
-		var newD Definition
 		if bpmnXML, err = xml.Marshal(origD); err != nil {
 			t.Fatalf("could not marshal XML from standard map, got %v", err)
 		}
 
 		// Now unmarshall the newly marshalled XML
-		if err = xml.Unmarshal(bpmnXML, &newD); err != nil {
+		var newD *Definition
+		if newD, err = NewDefinition(bpmnXML); err != nil {
 			t.Fatalf("could not unmarshal XML into new definition, got %v", err)
 		}
 
 		// Now see if they are the same
-		compareDefinitions(t, &origD, &newD)
+		compareDefinitions(t, origD, newD)
 
 		t.Logf("\nRules:")
 		for _, r := range origD.GetRules() {
