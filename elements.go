@@ -25,6 +25,7 @@ const (
 	B2ManualTask             ElementType = "MANUAL_TASK"
 	B2ScriptTask             ElementType = "SCRIPT_TASK"
 	B2UserTask               ElementType = "USER_TASK"
+	B2BusinessRuleTask       ElementType = "BUSINESS_RULE_TASK"
 	B2ServiceTask            ElementType = "SERVICE_TASK"
 	B2ParallelGateway        ElementType = "PARALLEL_GATEWAY"
 	B2ExclusiveGateway       ElementType = "EXCLUSIVE_GATEWAY"
@@ -176,10 +177,10 @@ func (mf *MessageFlow) GetName() string {
 }
 func (mf *MessageFlow) GetDocumentation() string { return mf.Documentation }
 func (mf *MessageFlow) GetIncomingAssociations() []string {
-	return []string{}
+	return []string{mf.SourceRef}
 }
 func (mf *MessageFlow) GetOutgoingAssociations() []string {
-	return []string{}
+	return []string{mf.TargetRef}
 }
 func (mf *MessageFlow) GetRules() []*Rule {
 	return GetRules(mf.ExtensionElements)
@@ -201,10 +202,10 @@ func (sf *SequenceFlow) GetName() string {
 }
 func (sf *SequenceFlow) GetDocumentation() string { return sf.Documentation }
 func (sf *SequenceFlow) GetIncomingAssociations() []string {
-	return []string{}
+	return []string{sf.SourceRef}
 }
 func (sf *SequenceFlow) GetOutgoingAssociations() []string {
-	return []string{}
+	return []string{sf.TargetRef}
 }
 func (sf *SequenceFlow) GetRules() []*Rule {
 	return GetRules(sf.ExtensionElements)
@@ -458,6 +459,30 @@ func (svt *ServiceTask) GetXMLName() xml.Name { return svt.XMLName }
 func (svt *ServiceTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ServiceTask, svt.Id, svt.Name, len(svt.IncomingAssociations), len(svt.OutgoingAssociations))
+}
+
+// *** BusinessRuleTask methods ***
+func (brt *BusinessRuleTask) GetId() string {
+	return brt.Id
+}
+func (brt *BusinessRuleTask) GetName() string {
+	return brt.Name
+}
+func (brt *BusinessRuleTask) GetDocumentation() string { return brt.Documentation }
+func (brt *BusinessRuleTask) GetIncomingAssociations() []string {
+	return brt.IncomingAssociations
+}
+func (brt *BusinessRuleTask) GetOutgoingAssociations() []string {
+	return brt.OutgoingAssociations
+}
+func (brt *BusinessRuleTask) GetRules() []*Rule { return GetRules(brt.ExtensionElements) }
+func (brt *BusinessRuleTask) GetType() ElementType {
+	return B2BusinessRuleTask
+}
+func (brt *BusinessRuleTask) GetXMLName() xml.Name { return brt.XMLName }
+func (brt *BusinessRuleTask) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2BusinessRuleTask, brt.Id, brt.Name, len(brt.IncomingAssociations), len(brt.OutgoingAssociations))
 }
 
 // *** CallActivity methods ***

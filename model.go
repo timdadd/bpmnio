@@ -154,6 +154,7 @@ type Process struct {
 	ManualTasks                  []*ManualTask             `xml:"manualTask"`
 	ServiceTasks                 []*ServiceTask            `xml:"serviceTask"`
 	UserTasks                    []*UserTask               `xml:"userTask"`
+	BusinessRuleTasks            []*BusinessRuleTask       `xml:"businessRuleTask"`
 	CallActivities               []*CallActivity           `xml:"callActivity"`
 	ParallelGateways             []*ParallelGateway        `xml:"parallelGateway"`
 	ExclusiveGateways            []*ExclusiveGateway       `xml:"exclusiveGateway"`
@@ -206,6 +207,7 @@ type SubProcess struct {
 	ScriptTasks             []*ScriptTask             `xml:"scriptTask"`
 	ManualTasks             []*ManualTask             `xml:"manualTask"`
 	ServiceTasks            []*ServiceTask            `xml:"serviceTask"`
+	BusinessRuleTasks       []*BusinessRuleTask       `xml:"businessRuleTask"`
 	UserTasks               []*UserTask               `xml:"userTask"`
 	CallActivities          []*CallActivity           `xml:"callActivity"`
 	ParallelGateways        []*ParallelGateway        `xml:"parallelGateway"`
@@ -299,6 +301,22 @@ type ScriptTask struct {
 	OperationRef         string             `xml:"operationRef,attr"`
 	ScriptFormat         string             `xml:"scriptFormat,attr"`
 	Script               string             `xml:"script,attr"`
+	IncomingAssociations []string           `xml:"incoming"`
+	OutgoingAssociations []string           `xml:"outgoing"`
+	Documentation        string             `xml:"documentation"`
+	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
+}
+
+// BusinessRuleTask has same attributes as Task + scriptFormat & script
+type BusinessRuleTask struct {
+	XMLName              xml.Name           `xml:"businessRuleTask"`
+	Id                   string             `xml:"id,attr"`
+	Name                 string             `xml:"name,attr"`
+	Default              string             `xml:"default,attr"`
+	StartQuantity        int                `xml:"startQuantity,attr"`
+	CompletionQuantity   int                `xml:"completionQuantity,attr"`
+	IsForCompensation    bool               `xml:"isForCompensation,attr"`
+	OperationRef         string             `xml:"operationRef,attr"`
 	IncomingAssociations []string           `xml:"incoming"`
 	OutgoingAssociations []string           `xml:"outgoing"`
 	Documentation        string             `xml:"documentation"`
@@ -430,6 +448,7 @@ type Rule struct {
 	XMLName     xml.Name `xml:"rule"`
 	Id          string   `xml:"id,attr"`
 	Type        string   `xml:"type,attr"`
+	Code        string   `xml:"code,attr"`
 	Name        string   `xml:"name,attr"`
 	Description string   `xml:"description,attr"`
 }

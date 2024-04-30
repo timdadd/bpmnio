@@ -35,6 +35,7 @@ func TestBPMNXML(t *testing.T) {
 		if err = xml.Unmarshal(bpmnXML, &origD); err != nil {
 			t.Fatalf("could not unmarshal XML into definitions, got %v", err)
 		}
+		//origD.Processes[0].TopologicalSort(false)
 		t.Logf("%v", origD)
 		// Now marshall back again into XML
 		var newD Definition
