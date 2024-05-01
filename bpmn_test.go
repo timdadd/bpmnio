@@ -35,7 +35,7 @@ func TestBPMNXML(t *testing.T) {
 		if origD, err = NewDefinition(bpmnXML); err != nil {
 			t.Fatalf("could not unmarshal XML into definitions, got %v", err)
 		}
-		//origD.Processes[0].TopologicalSort(false)
+
 		t.Logf("%v", origD)
 		// Now marshall back again into XML
 		if bpmnXML, err = xml.Marshal(origD); err != nil {
@@ -84,7 +84,7 @@ func TestBPMNXML(t *testing.T) {
 		for _, p := range origD.Processes {
 			t.Logf("\nProcess FLow:%s", p.ToString())
 			//t.Logf("Sequence Flows:%v", p.SequenceFlows)
-			for _, be := range p.Flow(false) {
+			for _, be := range p.TopologicalSort(true) {
 				var rules []string
 				for _, r := range be.GetRules() {
 					rules = append(rules, fmt.Sprintf("(%s) %s %s", r.Type, r.Name, r.Description))
@@ -172,41 +172,18 @@ func compareBaseElements(t *testing.T, b1 BaseElement, b2 BaseElement) {
 
 }
 
-func displayDefinitions(t *testing.T, d *Definition) {
-	for _, p := range d.Processes {
-		t.Logf("Process definition %s", p.Id)
-		for _, task := range p.Tasks {
-			t.Logf("..Task definition %s (%s)", task.Id, task.Name)
-		}
-		for _, sp := range p.SubProcesses {
-			t.Logf(".. Sub Process definition %s (%s)", sp.Id, sp.Name)
-			for _, task := range sp.Tasks {
-				t.Logf("   ..Task definition %s (%s)", task.Id, task.Name)
-			}
-		}
-	}
-}
-
-func testStringGraph(t *testing.T) {
-	g := &stringGraph{
-		edges:    make(map[string][]string),
-		vertices: []string{"5", "4", "2", "3", "1", "0"},
-	}
-
-	g.addEdge("5", "2")
-	g.addEdge("5", "0")
-	g.addEdge("4", "0")
-	g.addEdge("4", "1")
-	g.addEdge("2", "3")
-	g.addEdge("3", "1")
-	expected := []string{"5", "4", "0", "2", "3", "1"}
-
-	result := g.topologicalSort()
-	//result, _ := g.kahn()
-
-	t.Logf("Got %v, wanted %v", result, expected)
-
-	//for _, v := range result {
-	//	t.Logf("%s\n", v)
-	//}
-}
+//
+//func displayDefinitions(t *testing.T, d *Definition) {
+//	for _, p := range d.Processes {
+//		t.Logf("Process definition %s", p.Id)
+//		for _, task := range p.Tasks {
+//			t.Logf("..Task definition %s (%s)", task.Id, task.Name)
+//		}
+//		for _, sp := range p.SubProcesses {
+//			t.Logf(".. Sub Process definition %s (%s)", sp.Id, sp.Name)
+//			for _, task := range sp.Tasks {
+//				t.Logf("   ..Task definition %s (%s)", task.Id, task.Name)
+//			}
+//		}
+//	}
+//}

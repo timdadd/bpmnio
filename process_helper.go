@@ -42,66 +42,6 @@ func (p *Process) FindSubProcessById(id string) (subProcess *SubProcess) {
 	return
 }
 
-func (p *Process) sortFlow(node string, visited map[string]bool, edges map[string][]string, sorted *[]string) {
-	visited[node] = true
-
-	for _, u := range edges[node] {
-		if !visited[u] {
-			p.sortFlow(u, visited, edges, sorted)
-		}
-	}
-
-	*sorted = append([]string{node}, *sorted...)
-}
-
-// Flow converts the BPMN elements into Nodes & Links and then returns a sequential flow
-// using a deepest first sort
-func (p *Process) Flow(includeLinks bool) (flow []BaseElement) {
-	nodeMap := p.FindNodes()
-	linkMap := p.FindLinks()
-	sourceNodeLinkMap := make(map[string][]BaseElement)
-
-	g := &stringGraph{
-		edges:    make(map[string][]string, len(nodeMap)), // Node n connects to nodes m,o,p...
-		vertices: make([]string, len(nodeMap)),
-	}
-	v := 0
-	for _, node := range nodeMap {
-		g.vertices[v] = node.GetId()
-		v++
-	}
-	// Use Links to find edges of nodes
-	for _, l := range linkMap {
-		var sourceRef, targetRef string
-		if msgFlow, mfOK := l.(*MessageFlow); mfOK {
-			sourceRef = msgFlow.SourceRef
-			targetRef = msgFlow.TargetRef
-		} else if seqFlow, sfOK := l.(*SequenceFlow); sfOK {
-			sourceRef = seqFlow.SourceRef
-			targetRef = seqFlow.TargetRef
-		}
-		//fmt.Println(sourceRef, targetRef)
-		if fromNode, sourceInMap := nodeMap[sourceRef]; sourceInMap {
-			if toNode, targetInMap := nodeMap[targetRef]; targetInMap {
-				g.addEdge(fromNode.GetId(), toNode.GetId())
-				if includeLinks {
-					sourceNodeLinkMap[fromNode.GetId()] = append(sourceNodeLinkMap[fromNode.GetId()], l)
-				}
-			}
-		}
-	}
-	result := g.topologicalSort()
-
-	//flow = make([]BaseElement, len(result))
-	for _, r := range result {
-		flow = append(flow, nodeMap[r])
-		for _, f := range sourceNodeLinkMap[r] {
-			flow = append(flow, f)
-		}
-	}
-	return
-}
-
 // FindNodes finds all the nodes within a process map[id]BaseElement
 func (p *Process) FindNodes() map[string]BaseElement {
 	nodeTypeMap := map[ElementType]bool{
@@ -207,150 +147,148 @@ func (p *Process) FindBaseElementById(id string) (baseElement BaseElement) {
 	return
 }
 
-// G Set of nodes to sort
-// L Empty list for the sorted elem.
-// S Empty Set for nodes with no incoming edges
-// B Set of backwards edges
-// while G is non-empty do
-// // search free nodes
-// foreach node n
-// 8 if incoming link counter of n = 0 then
-// 9 insert m into S
-// 10 if S is non-empty then
-// 11 // ordinary top-sort
-// 12 remove a node n from S and G
-// 13 insert n into L
-// 14 foreach node m with an edge e
-// 15 from n to m do
-// 16 remove e
-// 17 decrement incoming link counter from m
-// 18 else // cycle found
-// 19 // find loop entry
-// 20 foreach join j in G do
-// 21 if incoming link counter of j
-// 22 < initial incoming link counter of j then
-// 23 J j and break
-// 24 // process loop entry
-// 25 foreach remaining incoming edge e of J do
-// 26 replace l with backwards edge b
-// 27 add b into B
-// 28
-// 29 output: L,B
-// Flow converts the BPMN elements into Nodes & Links and then returns a sequential flow
-// using a deepest first sort
+// TopologicalSort
+// Based upon algorithm published by Kai Kretschmann
+// Design and Implementation of a Framework for the Creation of BPMN 2.0 Process Models based on Textual Descriptions
+// But enhanced to prefer sequence flows over number of connections
+//
+// includeLinks is optional
+func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement) {
+	nodeMap := p.FindNodes()
+	linkMap := p.FindLinks() // Links/Edges with predecessor & successor
+	// incomingSeqCounts: elements with number of incoming sequence flows & number of processed incoming sequence flows
+	// If processed = total then this is next best step
+	type incomingSeqCount struct {
+		id                                     string
+		be                                     BaseElement
+		numberOfIncomingSequenceFlows          int
+		numberOfProcessedIncomingSequenceFlows int
+	}
+	incomingSeqCounts := make(map[string]*incomingSeqCount, len(nodeMap))
+	for k, be := range nodeMap {
+		incomingSeqCounts[k] = &incomingSeqCount{id: k, be: be}
+	}
+	for _, l := range linkMap {
+		for _, incomingAssocBPMNId := range l.GetOutgoingAssociations() {
+			if incomingSeqCounts[incomingAssocBPMNId] == nil {
+				fmt.Println("id on link isn't a node", incomingAssocBPMNId)
+			} else {
+				incomingSeqCounts[incomingAssocBPMNId].numberOfIncomingSequenceFlows++
+			}
+		}
+	}
+	//for k := range nodeMap {
+	//	fmt.Println(k, incomingSeqCounts[k].numberOfIncomingSequenceFlows, nodeMap[k].ToString())
+	//}
+	// incomingSeqCounts Initialised
 
-// sequenceFlowArray← array of triples with predecessorID, successorID, edgeID;
-//incomingSeqCounts← array of triples with elementID, number of incoming sequence
-//ows, number of processed incoming sequence ows (initialized as 0);
-//orderedList← {}; array to contain the topological sorted element IDs
-//loopEdgeArray← {}; array to contain all sequence ow IDs considered as loop edges
-//while incomingSeqCounts not empty do
-//triple← an element in incomingSeqCounts with incoming sequence ows = number
-//of processed;
-//if no such element can be found then
-//triple← an element in incomingSeqCounts with highest processed sequence ow
-//number;
-//loopEdges← all edgeIDs from sequenceFlowArray where successorID = triple elementID and predecessorID ∈/ orderedList;
-//for all loopEdges do
-//loopEdgeArray← loopEdgeArray ∪ loopEdges;
-//end for
-//end if
-//orderedList← orderedList ∪ {elementID from triple};
-//incomingSeqCounts← incomingSeqCounts\{triple};
-//newIncomingSeqCount← {};
-//for all x in incomingSeqCounts do
-//processedEdges ←{e| e ∈ sequenceFlowArray, triple.elementID = e.predecessorID,
-//x.elementId = e.successorID };
-//newIncomingSeqCount ← newIncomingSeqCount ∪ {(x.elementID, x.incoming,
-//x.processed + |processedEdges|)}
-//end for
-//incomingSeqCounts← newIncomingSeqCount;
-//end while
-//return loopEdgeArray, orderedList;
-//func (p *Process) TopologicalSort(includeLinks bool) (flow []BaseElement) {
-//	nodeMap := p.FindNodes()
-//	linkMap := p.FindLinks()
-//	type incomingSequenceCount struct {
-//		numberOfIncomingSequenceFlows          int
-//		numberOfProcessedIncomingSequenceFlows int
-//	}
-//	incomingSequenceCounts := make(map[string]*incomingSequenceCount, len(nodeMap))
-//	for k := range nodeMap {
-//		incomingSequenceCounts[k] = &incomingSequenceCount{}
-//	}
-//	for _, l := range linkMap {
-//		for _, incomingAssocBPMNId := range l.GetOutgoingAssociations() {
-//			incomingSequenceCounts[incomingAssocBPMNId].numberOfIncomingSequenceFlows++
-//		}
-//	}
-//	for k := range nodeMap {
-//		fmt.Println(k, incomingSequenceCounts[k].numberOfIncomingSequenceFlows, nodeMap[k])
-//	}
-//	var loopEdges []BaseElement
-//	numberOfProcessedIncomingSequenceFlows := 0
-//	// while incomingSeqCounts not empty do
-//	for len(incomingSequenceCounts) > 0 {
-//		var isc *incomingSequenceCount
-//		// triple← an element in incomingSeqCounts with incoming sequence ows = number of processed;
-//		for _, isc = range incomingSequenceCounts {
-//			if isc.numberOfIncomingSequenceFlows == numberOfProcessedIncomingSequenceFlows {
-//				break
-//			}
-//		}
-//		// if no such element can be found then
-//		// triple← an element in incomingSeqCounts with highest processed sequence flow number;
-//			var maxNumberProcessed = -1
-//			for _, iscMax := range incomingSequenceCounts {
-//				if iscMax.numberOfProcessedIncomingSequenceFlows > maxNumberProcessed {
-//isc=iscMax
-//				}
-//			}
-//
-//		}
-//	}
-//
-//for ; len(nodeMap) > 0; {
-//	for _,n:=
-//}
-//sourceNodeLinkMap := make(map[string][]BaseElement)
-//
-//g := &stringGraph{
-//	edges:    make(map[string][]string, len(nodeMap)), // Node n connects to nodes m,o,p...
-//	vertices: make([]string, len(nodeMap)),
-//}
-//v := 0
-//for _, node := range nodeMap {
-//	g.vertices[v] = node.GetId()
-//	v++
-//}
-//// Use Links to find edges of nodes
-//for _, l := range linkMap {
-//	var sourceRef, targetRef string
-//	if msgFlow, mfOK := l.(*MessageFlow); mfOK {
-//		sourceRef = msgFlow.SourceRef
-//		targetRef = msgFlow.TargetRef
-//	} else if seqFlow, sfOK := l.(*SequenceFlow); sfOK {
-//		sourceRef = seqFlow.SourceRef
-//		targetRef = seqFlow.TargetRef
-//	}
-//	//fmt.Println(sourceRef, targetRef)
-//	if fromNode, sourceInMap := nodeMap[sourceRef]; sourceInMap {
-//		if toNode, targetInMap := nodeMap[targetRef]; targetInMap {
-//			g.addEdge(fromNode.GetId(), toNode.GetId())
-//			if includeLinks {
-//				sourceNodeLinkMap[fromNode.GetId()] = append(sourceNodeLinkMap[fromNode.GetId()], l)
-//			}
-//		}
-//	}
-//}
-//result := g.topologicalSort()
-//
-////flow = make([]BaseElement, len(result))
-//for _, r := range result {
-//	flow = append(flow, nodeMap[r])
-//	for _, f := range sourceNodeLinkMap[r] {
-//		flow = append(flow, f)
-//	}
-//}
-//return
-//}
+	inOrderedList := map[string]bool{}                 // id added if in the ordered list
+	var pathPreferredNodes = make(map[string]bool, 4)  // This is to prefer a node joined by a link over anything else following the current route
+	var otherPreferredNodes = make(map[string]bool, 4) // This is to prefer a node we've seen that is a different path
+	// while incomingSeqCounts not empty do
+	for len(incomingSeqCounts) > 0 {
+		var isc *incomingSeqCount
+		// Go around this loop twice, the first time try and find a preferred node
+		//fmt.Println("preferred nodes:", len(pathPreferredNodes))
+		//for id := range pathPreferredNodes {
+		//	fmt.Println("..", nodeMap[id].ToString())
+		//}
+		for i := range 3 {
+			var preferredNodes map[string]bool
+			if i == 0 {
+				preferredNodes = pathPreferredNodes
+			}
+			if i == 1 {
+				preferredNodes = otherPreferredNodes
+			}
+			if i < 2 && len(preferredNodes) == 0 {
+				continue
+			}
+			// triple: an element in incomingSeqCounts with incoming sequence flows = number of processed;
+			for _, iscNP := range incomingSeqCounts {
+				if iscNP.numberOfIncomingSequenceFlows == iscNP.numberOfProcessedIncomingSequenceFlows &&
+					(preferredNodes[iscNP.id] || i == 2) {
+					//fmt.Println("==", i, iscNP)
+					isc = iscNP
+					break
+				}
+			}
+			if isc != nil {
+				break
+			}
+			// if no such element can be found then
+			// triple:an element in incomingSeqCounts with the highest processed sequence flow number;
+			var maxNumberProcessed = -1
+			for _, iscMax := range incomingSeqCounts {
+				if iscMax.numberOfProcessedIncomingSequenceFlows > maxNumberProcessed &&
+					(preferredNodes[iscMax.id] || i == 2) {
+					isc = iscMax
+					maxNumberProcessed = isc.numberOfProcessedIncomingSequenceFlows
+					//fmt.Println("max", i, isc)
+				}
+			}
+			if isc != nil {
+				break
+			}
+		}
+		//fmt.Println("Selected node", isc.be.ToString())
+
+		// Remove the link from the map and add to ordered list if required
+		var fromId string
+		if len(orderedList) > 0 {
+			fromId = orderedList[len(orderedList)-1].GetId()
+		}
+		var usedLink BaseElement
+		var nextNodes []string
+		for _, l := range linkMap {
+			if l.GetIncomingAssociations()[0] == isc.id {
+				for _, id := range l.GetOutgoingAssociations() {
+					// We can only prefer things we haven't already processed
+					if id != isc.id && !inOrderedList[id] {
+						nextNodes = append(nextNodes, id)
+					}
+				}
+			}
+			if fromId > "" && l.GetIncomingAssociations()[0] == fromId && l.GetOutgoingAssociations()[0] == isc.id {
+				usedLink = l
+			}
+		}
+		if usedLink != nil {
+			if includeLinks {
+				orderedList = append(orderedList, usedLink)
+			}
+			delete(linkMap, usedLink.GetId())
+		}
+		orderedList = append(orderedList, isc.be) //orderedList← orderedList ∪ {elementID from triple};
+		delete(pathPreferredNodes, isc.id)        // Take the node out of path preferred list
+		delete(otherPreferredNodes, isc.id)       // Take the node out of other preferred list
+		for k, v := range pathPreferredNodes {    // Move any nodes in current path preferred list to otherPreferredNodes
+			otherPreferredNodes[k] = v
+		}
+		pathPreferredNodes = make(map[string]bool, len(nextNodes))
+		for _, id := range nextNodes {
+			pathPreferredNodes[id] = true
+		}
+
+		inOrderedList[isc.id] = true
+		delete(incomingSeqCounts, isc.id)                           //incomingSeqCounts← incomingSeqCounts\{triple};
+		newIncomingSequenceCounts := map[string]*incomingSeqCount{} // newIncomingSeqCount← {};
+		for k, v := range incomingSeqCounts {                       //for all x in incomingSeqCounts do
+			var processedLinks []BaseElement
+			// processedEdges ←{e| e ∈ sequenceFlowArray, triple.elementID = e.predecessorID, x.elementId = e.successorID };
+			for _, l := range linkMap {
+				if isc.id == l.GetIncomingAssociations()[0] && k == l.GetOutgoingAssociations()[0] {
+					processedLinks = append(processedLinks, l)
+				}
+			}
+			newIncomingSequenceCounts[k] = &incomingSeqCount{
+				id:                                     k,
+				be:                                     v.be,
+				numberOfIncomingSequenceFlows:          v.numberOfIncomingSequenceFlows,
+				numberOfProcessedIncomingSequenceFlows: v.numberOfProcessedIncomingSequenceFlows + len(processedLinks),
+			}
+		}
+		incomingSeqCounts = newIncomingSequenceCounts
+	}
+	return orderedList
+}
