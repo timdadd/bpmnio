@@ -248,6 +248,9 @@ func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement)
 			if l.GetIncomingAssociations()[0] == isc.id {
 				for _, id := range l.GetOutgoingAssociations() {
 					// We can only prefer things we haven't already processed
+					// If this is a gateway we should not prefer to continue but wait
+					// for other paths to catch up.
+					// that is isc.processed still less than isc.incoming
 					if id != isc.id && !inOrderedList[id] {
 						nextNodes = append(nextNodes, id)
 					}
