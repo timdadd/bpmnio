@@ -231,6 +231,10 @@ func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement)
 				break
 			}
 		}
+		if isc == nil {
+			fmt.Println("How did we not find something!")
+			break
+		}
 		//fmt.Println("Selected node", isc.be.ToString())
 
 		// Remove the link from the map and add to ordered list if required
