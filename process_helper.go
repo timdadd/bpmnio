@@ -2,7 +2,8 @@ package bpmnio
 
 import "fmt"
 
-// FindSequenceFlows finds all the sequence glows in the process and sub processes of the process
+// FindSequenceFlows finds all the sequence flows in the process and sub processes of the process
+// that have match one of the ids passed in
 func (p *Process) FindSequenceFlows(ids []string) (sequenceFlows []*SequenceFlow) {
 	if len(ids) == 0 {
 		sequenceFlows = p.SequenceFlows
@@ -32,6 +33,7 @@ func (p *Process) FindSequenceFlows(ids []string) (sequenceFlows []*SequenceFlow
 	return sequenceFlows
 }
 
+// FindSubProcessById will find the sub process with the Id given
 func (p *Process) FindSubProcessById(id string) (subProcess *SubProcess) {
 	for _, sp := range p.SubProcesses {
 		if sp.Id == id {
@@ -42,34 +44,23 @@ func (p *Process) FindSubProcessById(id string) (subProcess *SubProcess) {
 	return
 }
 
-// FindNodes finds all the nodes within a process map[id]BaseElement
+// FindNodes finds all the nodes and returns with a process map[id]BaseElement
 func (p *Process) FindNodes() map[string]BaseElement {
-	nodeTypeMap := map[ElementType]bool{
-		B2Task:                   true,
-		B2ScriptTask:             true,
-		B2ServiceTask:            true,
-		B2ManualTask:             true,
-		B2UserTask:               true,
-		B2ReceiveTask:            true,
-		B2SendTask:               true,
-		B2BusinessRuleTask:       true,
-		B2CallActivity:           true,
-		B2StartEvent:             true,
-		B2EndEvent:               true,
-		B2EventBasedGateway:      true,
-		B2ParallelGateway:        true,
-		B2ExclusiveGateway:       true,
-		B2IntermediateCatchEvent: true,
-		B2SubProcess:             false,
+	nodeTypes := NodeElementTypes()
+	nodeTypeMap := make(map[ElementType]bool, len(nodeTypes))
+	for _, nodeType := range nodeTypes {
+		nodeTypeMap[nodeType] = true
 	}
+	nodeTypeMap[B2SubProcess] = false
 	return p.MapBEs(nodeTypeMap)
 }
 
-// FindLinks finds all the Links within a process map[id]BaseElement
+// FindLinks finds all the Links and returns a process map[id]BaseElement
 func (p *Process) FindLinks() map[string]BaseElement {
-	linkTypeMap := map[ElementType]bool{
-		B2MessageFlow:  true,
-		B2SequenceFlow: true,
+	linkTypes := NodeElementTypes()
+	linkTypeMap := make(map[ElementType]bool, len(linkTypes))
+	for _, linkType := range linkTypes {
+		linkTypeMap[linkType] = true
 	}
 	return p.MapBEs(linkTypeMap)
 }
