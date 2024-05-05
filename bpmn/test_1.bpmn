@@ -1,0 +1,132 @@
+This XML file does not appear to have any style information associated with it. The document tree is shown below.
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:rule="http://rule" id="Definitions_15zwg54" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="9.3.2">
+<bpmn:collaboration id="Collaboration_14e84qc">
+<bpmn:participant id="Participant_0iz19sk" name="BSS" processRef="Process_0bmibjp">
+<bpmn:documentation/>
+</bpmn:participant>
+<bpmn:participant id="Participant_1cqpp9s" name="Thin MVNO" processRef="Process_1lnt2kq">
+<bpmn:documentation><p>&nbsp;</p></bpmn:documentation>
+</bpmn:participant>
+</bpmn:collaboration>
+<bpmn:process id="Process_0bmibjp" isExecutable="false">
+<bpmn:extensionElements>
+<rule:rules/>
+</bpmn:extensionElements>
+<bpmn:laneSet id="LaneSet_1ugvwuy">
+<bpmn:lane id="Lane_1tf4c7m" name="HOBS">
+<bpmn:flowNodeRef>StartEvent_04ty3ep</bpmn:flowNodeRef>
+<bpmn:flowNodeRef>Activity_1tverkt</bpmn:flowNodeRef>
+<bpmn:flowNodeRef>Event_0j2eh3o</bpmn:flowNodeRef>
+<bpmn:flowNodeRef>Activity_1g6wphe</bpmn:flowNodeRef>
+</bpmn:lane>
+<bpmn:lane id="Lane_195ja8i"/>
+</bpmn:laneSet>
+<bpmn:startEvent id="StartEvent_04ty3ep" name="start">
+<bpmn:outgoing>Flow_15odv1i</bpmn:outgoing>
+</bpmn:startEvent>
+<bpmn:task id="Activity_1tverkt" name="Create">
+<bpmn:incoming>Flow_15odv1i</bpmn:incoming>
+<bpmn:outgoing>Flow_0r40mlj</bpmn:outgoing>
+</bpmn:task>
+<bpmn:endEvent id="Event_0j2eh3o" name="end">
+<bpmn:incoming>Flow_1w1ygiw</bpmn:incoming>
+</bpmn:endEvent>
+<bpmn:task id="Activity_1g6wphe" name="Close">
+<bpmn:documentation>Closing Time</bpmn:documentation>
+<bpmn:extensionElements>
+<rule:rules>
+<rule:rule id="R_CD_NSU_Zjdt1Q" type="business" code="" name="u" description=""/>
+<rule:rule id="R_CD_NSU_Zjdt1g" type="business" code="" name="v" description=""/>
+<rule:rule id="R_CD_NSU_ZjdtzQ" type="business" code="" name="m" description=""/>
+<rule:rule id="R_CD_NSU_Zjdtzw" type="business" code="" name="o" description=""/>
+<rule:rule id="R_CD_NSU_Zjdtyg" type="business" code="" name="g" description=""/>
+<rule:rule id="R_CD_NSU_Zjdtyw" type="business" code="" name="k" description=""/>
+<rule:rule id="R_CD_NSU_Zjdt0w" type="business" code="" name="s" description=""/>
+<rule:rule id="R_CD_NSU_Zjdt1w" type="business" code="" name="w" description=""/>
+<rule:rule id="R_CD_NSU_ZjdtxQ" type="business" code="" name="d" description=""/>
+<rule:rule id="R_CD_NSU_ZjdtyQ" type="business" code="" name="h" description=""/>
+<rule:rule id="R_CD_NSU_Zjdt0A" type="business" code="" name="p" description=""/>
+<rule:rule id="R_CD_NSU_Zjdt0Q" type="business" code="" name="q" description=""/>
+<rule:rule id="R_CD_NSU_Zjdt1A" type="business" code="" name="t" description=""/>
+<rule:rule id="R_CD_NSU_ZjdtyA" type="business" code="" name="j" description=""/>
+<rule:rule id="R_CD_NSU_Zjdtzg" type="business" code="" name="n" description=""/>
+<rule:rule id="R_CD_NSU_ZjdtzA" type="business" code="l" name="l" description=""/>
+<rule:rule id="R_CD_NSU_Zjdt0g" type="business" code="" name="r" description="r"/>
+<rule:rule id="R_CD_NSU_Zjdtxg" type="business" code="" name="e" description=""/>
+<rule:rule id="R_CD_NSU_Zjdtxw" type="business" code="" name="f" description=""/>
+</rule:rules>
+</bpmn:extensionElements>
+<bpmn:incoming>Flow_0r40mlj</bpmn:incoming>
+<bpmn:outgoing>Flow_1w1ygiw</bpmn:outgoing>
+</bpmn:task>
+<bpmn:sequenceFlow id="Flow_15odv1i" sourceRef="StartEvent_04ty3ep" targetRef="Activity_1tverkt"/>
+<bpmn:sequenceFlow id="Flow_0r40mlj" sourceRef="Activity_1tverkt" targetRef="Activity_1g6wphe"/>
+<bpmn:sequenceFlow id="Flow_1w1ygiw" sourceRef="Activity_1g6wphe" targetRef="Event_0j2eh3o"/>
+</bpmn:process>
+<bpmn:process id="Process_1lnt2kq">
+<bpmn:laneSet id="LaneSet_1fo0mvf">
+<bpmn:lane id="Lane_1yn8v1t" name="HOBS"/>
+<bpmn:lane id="Lane_1bnyz5p"/>
+<bpmn:lane id="Lane_1n2e6zd"/>
+</bpmn:laneSet>
+</bpmn:process>
+<bpmndi:BPMNDiagram id="BPMNDiagram_1">
+<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_14e84qc">
+<bpmndi:BPMNShape id="Participant_0iz19sk_di" bpmnElement="Participant_0iz19sk" isHorizontal="true">
+<dc:Bounds x="270" y="180" width="696" height="370"/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_195ja8i_di" bpmnElement="Lane_195ja8i" isHorizontal="true">
+<dc:Bounds x="300" y="180" width="666" height="120"/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_1tf4c7m_di" bpmnElement="Lane_1tf4c7m" isHorizontal="true">
+<dc:Bounds x="300" y="300" width="666" height="250"/>
+<bpmndi:BPMNLabel/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_04ty3ep">
+<dc:Bounds x="350" y="342" width="36" height="36"/>
+<bpmndi:BPMNLabel>
+<dc:Bounds x="357" y="385" width="23" height="14"/>
+</bpmndi:BPMNLabel>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_1tverkt_di" bpmnElement="Activity_1tverkt">
+<dc:Bounds x="474" y="320" width="100" height="80"/>
+<bpmndi:BPMNLabel/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Event_0j2eh3o_di" bpmnElement="Event_0j2eh3o">
+<dc:Bounds x="906" y="342" width="36" height="36"/>
+<bpmndi:BPMNLabel>
+<dc:Bounds x="915" y="385" width="19" height="14"/>
+</bpmndi:BPMNLabel>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_1g6wphe_di" bpmnElement="Activity_1g6wphe">
+<dc:Bounds x="684" y="320" width="100" height="80"/>
+<bpmndi:BPMNLabel/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Flow_15odv1i_di" bpmnElement="Flow_15odv1i">
+<di:waypoint x="386" y="360"/>
+<di:waypoint x="474" y="360"/>
+</bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_0r40mlj_di" bpmnElement="Flow_0r40mlj">
+<di:waypoint x="574" y="360"/>
+<di:waypoint x="684" y="360"/>
+</bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_1w1ygiw_di" bpmnElement="Flow_1w1ygiw">
+<di:waypoint x="784" y="360"/>
+<di:waypoint x="906" y="360"/>
+</bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="Participant_1cqpp9s_di" bpmnElement="Participant_1cqpp9s" isHorizontal="true">
+<dc:Bounds x="250" y="600" width="600" height="250"/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_1n2e6zd_di" bpmnElement="Lane_1n2e6zd" isHorizontal="true">
+<dc:Bounds x="280" y="766" width="570" height="84"/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_1bnyz5p_di" bpmnElement="Lane_1bnyz5p" isHorizontal="true">
+<dc:Bounds x="280" y="683" width="570" height="83"/>
+</bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_1yn8v1t_di" bpmnElement="Lane_1yn8v1t" isHorizontal="true">
+<dc:Bounds x="280" y="600" width="570" height="83"/>
+<bpmndi:BPMNLabel/>
+</bpmndi:BPMNShape>
+</bpmndi:BPMNPlane>
+</bpmndi:BPMNDiagram>
+</bpmn:definitions>

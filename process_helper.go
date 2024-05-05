@@ -236,19 +236,22 @@ func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement)
 		var usedLink BaseElement
 		var nextNodes []string
 		for _, l := range linkMap {
-			if l.GetIncomingAssociations()[0] == isc.id {
-				for _, id := range l.GetOutgoingAssociations() {
-					// We can only prefer things we haven't already processed
-					// If this is a gateway we should not prefer to continue but wait
-					// for other paths to catch up.
-					// that is isc.processed still less than isc.incoming
-					if id != isc.id && !inOrderedList[id] {
-						nextNodes = append(nextNodes, id)
+			for _, ia := range l.GetIncomingAssociations() {
+				if ia == isc.id {
+					for _, id := range l.GetOutgoingAssociations() {
+						// We can only prefer things we haven't already processed
+						// If this is a gateway we should not prefer to continue but wait
+						// for other paths to catch up.
+						// that is isc.processed still less than isc.incoming
+						if id != isc.id && !inOrderedList[id] {
+							nextNodes = append(nextNodes, id)
+						}
 					}
 				}
-			}
-			if fromId > "" && l.GetIncomingAssociations()[0] == fromId && l.GetOutgoingAssociations()[0] == isc.id {
-				usedLink = l
+				if fromId > "" && ia == fromId && ia == isc.id {
+					usedLink = l
+				}
+				break // Only look at first incoming association
 			}
 		}
 		if usedLink != nil {
@@ -275,8 +278,10 @@ func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement)
 			var processedLinks []BaseElement
 			// processedEdges ←{e| e ∈ sequenceFlowArray, triple.elementID = e.predecessorID, x.elementId = e.successorID };
 			for _, l := range linkMap {
-				if isc.id == l.GetIncomingAssociations()[0] && k == l.GetOutgoingAssociations()[0] {
-					processedLinks = append(processedLinks, l)
+				if len(l.GetIncomingAssociations()) > 0 && len(l.GetOutgoingAssociations()) > 0 {
+					if isc.id == l.GetIncomingAssociations()[0] && k == l.GetOutgoingAssociations()[0] {
+						processedLinks = append(processedLinks, l)
+					}
 				}
 			}
 			newIncomingSequenceCounts[k] = &incomingSeqCount{

@@ -94,7 +94,7 @@ type Participant struct {
 	XMLName           xml.Name           `xml:"participant"`
 	Id                string             `xml:"id,attr"`
 	Name              string             `xml:"name,attr"`
-	ProcessRef        string             `xml:"processRef"`
+	ProcessRef        string             `xml:"processRef,attr"`
 	Documentation     string             `xml:"documentation"`
 	ExtensionElements *ExtensionElements `xml:"extensionElements"`
 }

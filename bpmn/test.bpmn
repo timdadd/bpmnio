@@ -35,15 +35,6 @@
       <semantic:outgoing>_6-748</semantic:outgoing>
       <semantic:messageEventDefinition messageRef="_1275940932433" />
     </semantic:intermediateCatchEvent>
-    <semantic:serviceTask id="_6-463" name="Bake the pizza">
-      <semantic:extensionElements>
-        <rule:rules>
-          <rule:rule id="Rule_1ogpf5c" type="business" name="Oven Temperature" description="Must be 220" />
-        </rule:rules>
-      </semantic:extensionElements>
-      <semantic:incoming>_6-693</semantic:incoming>
-      <semantic:outgoing>_6-632</semantic:outgoing>
-    </semantic:serviceTask>
     <semantic:sequenceFlow id="_6-691" name="" sourceRef="_6-652" targetRef="_6-674" />
     <semantic:sequenceFlow id="_6-693" name="" sourceRef="_6-652" targetRef="_6-463" />
     <semantic:sequenceFlow id="_6-746" name="" sourceRef="CalmCustomerTask" targetRef="_6-674" />
@@ -62,11 +53,15 @@
       <semantic:incoming>_6-632</semantic:incoming>
       <semantic:outgoing>_6-634</semantic:outgoing>
     </semantic:scriptTask>
-    <semantic:task id="_6-565" name="Receive payment  From Customer">
+    <semantic:task id="_6-565" name="Receive payment">
       <semantic:incoming>_6-634</semantic:incoming>
       <semantic:outgoing>_6-636</semantic:outgoing>
     </semantic:task>
     <semantic:sequenceFlow id="_6-634" name="" sourceRef="_6-514" targetRef="_6-565" />
+    <semantic:serviceTask id="_6-463" name="Bake the pizza">
+      <semantic:incoming>_6-693</semantic:incoming>
+      <semantic:outgoing>_6-632</semantic:outgoing>
+    </semantic:serviceTask>
   </semantic:process>
   <semantic:message id="_1275940932198" />
   <semantic:process id="BP901" isExecutable="false">
@@ -74,11 +69,11 @@
       <semantic:outgoing>_6-125</semantic:outgoing>
     </semantic:startEvent>
     <semantic:task id="_6-127" name="Order a pizza">
+      <semantic:documentation>The challenges of deciding what to eat</semantic:documentation>
       <semantic:extensionElements>
         <rule:rules>
           <rule:rule id="Rule_1dl9c3c" type="business" name="Cheese" description="All pizzas must have cheese" />
           <rule:rule id="Rule_3u9pq45" type="business" name="Size" description="10&#34; or 16&#34;" />
-          <rule:rule id="Rule_14bq7ua" type="function" name="Slices as well" description="Customer can ask for Pizza to be sliced up" />
         </rule:rules>
       </semantic:extensionElements>
       <semantic:incoming>_6-178</semantic:incoming>
@@ -101,7 +96,7 @@
       <semantic:incoming>_6-424</semantic:incoming>
       <semantic:outgoing>_6-426</semantic:outgoing>
       <semantic:timerEventDefinition>
-        <semantic:timeDate />
+        <semantic:timeDuration xsi:type="semantic:tFormalExpression">25</semantic:timeDuration>
       </semantic:timerEventDefinition>
     </semantic:intermediateCatchEvent>
     <semantic:task id="_6-236" name="Ask for the pizza">
@@ -114,6 +109,10 @@
     <semantic:sequenceFlow id="_6-426" name="" sourceRef="_6-219" targetRef="_6-236" />
     <semantic:sequenceFlow id="_6-434" name="" sourceRef="_6-304" targetRef="_6-355" />
     <semantic:sequenceFlow id="_6-436" name="" sourceRef="_6-355" targetRef="_6-406" />
+    <semantic:endEvent id="_6-406" name="Hunger satisfied">
+      <semantic:incoming>_6-436</semantic:incoming>
+      <semantic:terminateEventDefinition id="TerminateEventDefinition_0by0p3g" />
+    </semantic:endEvent>
     <semantic:intermediateCatchEvent id="_6-202" name="pizza received">
       <semantic:incoming>_6-422</semantic:incoming>
       <semantic:outgoing>_6-428</semantic:outgoing>
@@ -125,11 +124,6 @@
     </semantic:task>
     <semantic:sequenceFlow id="_6-428" name="" sourceRef="_6-202" targetRef="_6-304" />
     <semantic:subProcess id="_6-355" name="Eat the pizza">
-      <semantic:extensionElements>
-        <rule:rules>
-          <rule:rule id="Rule_2a6q19d" type="flow" name="" description="" />
-        </rule:rules>
-      </semantic:extensionElements>
       <semantic:incoming>_6-434</semantic:incoming>
       <semantic:outgoing>_6-436</semantic:outgoing>
       <semantic:startEvent id="Event_0g3oarg">
@@ -202,10 +196,6 @@
         </semantic:callActivity>
       </semantic:subProcess>
     </semantic:subProcess>
-    <semantic:endEvent id="_6-406" name="Hunger satisfied">
-      <semantic:incoming>_6-436</semantic:incoming>
-      <semantic:terminateEventDefinition id="TerminateEventDefinition_0by0p3g" />
-    </semantic:endEvent>
   </semantic:process>
   <semantic:collaboration id="C1275940932557">
     <semantic:extensionElements>
@@ -273,7 +263,7 @@
           <dc:Bounds x="586" y="-426" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Trisotech.Visio__6__6-236" bpmnElement="_6-236" bioc:stroke="#5b176d" bioc:fill="#e1bee7" color:background-color="#e1bee7" color:border-color="#5b176d">
+      <bpmndi:BPMNShape id="Trisotech.Visio__6__6-236" bpmnElement="_6-236">
         <dc:Bounds x="666" y="-476" width="83" height="68" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
@@ -386,9 +376,6 @@
           <dc:Bounds x="544" y="-225" width="64" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1v1pf2w_di" bpmnElement="_6-463">
-        <dc:Bounds x="594" y="-160" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Trisotech.Visio__6__6-616" bpmnElement="_6-616">
         <dc:Bounds x="1064" y="-20" width="32" height="32" />
         <bpmndi:BPMNLabel />
@@ -404,6 +391,9 @@
         <dc:Bounds x="948" y="-38" width="83" height="68" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1v1pf2w_di" bpmnElement="_6-463">
+        <dc:Bounds x="610" y="-160" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Trisotech.Visio__6__6-630" bpmnElement="_6-630">
         <di:waypoint x="420" y="-241" />
         <di:waypoint x="482" y="-241" />
@@ -418,7 +408,7 @@
       <bpmndi:BPMNEdge id="Trisotech.Visio__6__6-693" bpmnElement="_6-693">
         <di:waypoint x="503" y="-220" />
         <di:waypoint x="503" y="-126" />
-        <di:waypoint x="594" y="-126" />
+        <di:waypoint x="610" y="-126" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Trisotech.Visio__6__6-746" bpmnElement="_6-746">
@@ -440,8 +430,8 @@
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Trisotech.Visio__6__6-632" bpmnElement="_6-632">
-        <di:waypoint x="636" y="-80" />
-        <di:waypoint x="636" y="-4" />
+        <di:waypoint x="652" y="-80" />
+        <di:waypoint x="652" y="-4" />
         <di:waypoint x="801" y="-4" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNEdge>
@@ -452,7 +442,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Group_0nj1fkp_di" bpmnElement="Group_0nj1fkp">
         <dc:Bounds x="228" y="-740" width="250" height="860" />
-        <bpmndi:BPMNLabel color:color="#0d4372">
+        <bpmndi:BPMNLabel>
           <dc:Bounds x="339" y="-733" width="29" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>

@@ -102,8 +102,8 @@ func (sf *SequenceFlow) GetConditionExpression() string {
 
 // ApplyFunctionToBaseElements applies a function to Definition and all children as long as function returns true
 func (d *Definition) ApplyFunctionToBaseElements(f func(element BaseElement) bool) {
-	d.Collaboration.ApplyFunctionToBaseElements(f)
-	d.Category.ApplyFunctionToBaseElements(f)
+	d.Collaboration.ApplyFunctionToBaseElements(f) // Handle collaboration first
+	d.Category.ApplyFunctionToBaseElements(f)      // Then categories
 	for _, process := range d.Processes {
 		process.ApplyFunctionToBaseElements(f)
 	}
@@ -132,7 +132,7 @@ func (p *Process) ApplyFunctionToBaseElements(f func(element BaseElement) bool) 
 	if p == nil {
 		return //Nothing to see here
 	}
-	if f(p) {
+	if f(p) { // Apply to process and then items within process
 		for _, group := range p.Groups {
 			f(group)
 		}
@@ -292,13 +292,21 @@ func (d *Definition) BpmnIdParentMap() map[string]BaseElement {
 	fMap := func(be BaseElement) bool {
 		switch be.(type) {
 		case *Process: // Process doesn't have a parent but is a parent
-			currentParent = be
-		//case *Participant: // Participant is a parent and child of process
-		//	if currentParent != nil {
-		//		d._BaseElementParent[be.GetId()] = *currentParent
-		//	}
-		//	currentParent = &be
-		case *Lane: // Lanes have a parent but tell us who their children are
+			// Process can be a participant, if it is then the participant is the parent not the process
+			currentParent = d._BaseElementParent[be.GetId()]
+			if currentParent == nil {
+				currentParent = be
+			}
+		case *Participant: // Participant and parent can be the same thing
+			// Participant isn't naturally a parent of anything
+			//if currentParent != nil {
+			//	d._BaseElementParent[be.GetId()] = currentParent
+			//}
+			currentParent = nil
+			if processRef := be.(*Participant).ProcessRef; processRef != "" {
+				d._BaseElementParent[processRef] = be
+			}
+		case *Lane: // Lanes have a parent but also tell us who their children are
 			if currentParent != nil {
 				d._BaseElementParent[be.GetId()] = currentParent
 			}

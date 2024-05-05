@@ -36,7 +36,7 @@ func TestBPMNXML(t *testing.T) {
 			t.Fatalf("could not unmarshal XML into definitions, got %v", err)
 		}
 
-		t.Logf("%v", origD)
+		//t.Logf("%v", origD)
 		// Now marshall back again into XML
 		if bpmnXML, err = xml.Marshal(origD); err != nil {
 			t.Fatalf("could not marshal XML from standard map, got %v", err)
