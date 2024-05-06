@@ -30,7 +30,11 @@ const (
 	B2ServiceTask            ElementType = "SERVICE_TASK"
 	B2ParallelGateway        ElementType = "PARALLEL_GATEWAY"
 	B2ExclusiveGateway       ElementType = "EXCLUSIVE_GATEWAY"
+	B2DataObjectReference    ElementType = "DATA_OBJECT_REFERENCE"
+	B2DataObject             ElementType = "DATA_OBJECT"
+	B2DataStoreReference     ElementType = "DATA_STORE_REFERENCE"
 	B2IntermediateCatchEvent ElementType = "INTERMEDIATE_CATCH_EVENT"
+	B2IntermediateThrowEvent ElementType = "INTERMEDIATE_THROW_EVENT"
 	B2EventBasedGateway      ElementType = "EVENT_BASED_GATEWAY"
 	B2CallActivity           ElementType = "CALL_ACTIVITY"
 	B2SequenceFlow           ElementType = "SEQUENCE_FLOW"
@@ -632,6 +636,114 @@ func (eg *ExclusiveGateway) GetXMLName() xml.Name { return eg.XMLName }
 func (eg *ExclusiveGateway) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ExclusiveGateway, eg.Id, eg.Name, len(eg.IncomingAssociations), len(eg.OutgoingAssociations))
+}
+
+func (dor *DataObjectReference) GetId() string {
+	return dor.Id
+}
+func (dor *DataObjectReference) GetName() string {
+	return dor.Name
+}
+func (dor *DataObjectReference) GetDocumentation() string { return dor.Documentation }
+func (dor *DataObjectReference) GetIncomingAssociations() []string {
+	return dor.IncomingAssociations
+}
+func (dor *DataObjectReference) GetOutgoingAssociations() []string {
+	return dor.OutgoingAssociations
+}
+func (dor *DataObjectReference) GetRules() []*Rule {
+	return GetRules(dor.ExtensionElements)
+}
+func (dor *DataObjectReference) GetType() ElementType {
+	return B2DataObjectReference
+}
+func (dor *DataObjectReference) GetXMLName() xml.Name {
+	return dor.XMLName
+}
+func (dor *DataObjectReference) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2DataObjectReference, dor.Id, dor.Name, len(dor.IncomingAssociations), len(dor.OutgoingAssociations))
+}
+
+func (do *DataObject) GetId() string {
+	return do.Id
+}
+func (do *DataObject) GetName() string {
+	return do.Name
+}
+func (do *DataObject) GetDocumentation() string { return do.Documentation }
+func (do *DataObject) GetIncomingAssociations() []string {
+	return do.IncomingAssociations
+}
+func (do *DataObject) GetOutgoingAssociations() []string {
+	return do.OutgoingAssociations
+}
+func (do *DataObject) GetRules() []*Rule {
+	return GetRules(do.ExtensionElements)
+}
+func (do *DataObject) GetType() ElementType {
+	return B2DataObject
+}
+func (do *DataObject) GetXMLName() xml.Name {
+	return do.XMLName
+}
+func (do *DataObject) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2DataObject, do.Id, do.Name, len(do.IncomingAssociations), len(do.OutgoingAssociations))
+}
+
+func (dsr *DataStoreReference) GetId() string {
+	return dsr.Id
+}
+func (dsr *DataStoreReference) GetName() string {
+	return dsr.Name
+}
+func (dsr *DataStoreReference) GetDocumentation() string { return dsr.Documentation }
+func (dsr *DataStoreReference) GetIncomingAssociations() []string {
+	return dsr.IncomingAssociations
+}
+func (dsr *DataStoreReference) GetOutgoingAssociations() []string {
+	return dsr.OutgoingAssociations
+}
+func (dsr *DataStoreReference) GetRules() []*Rule {
+	return GetRules(dsr.ExtensionElements)
+}
+func (dsr *DataStoreReference) GetType() ElementType {
+	return B2DataStoreReference
+}
+func (dsr *DataStoreReference) GetXMLName() xml.Name {
+	return dsr.XMLName
+}
+func (dsr *DataStoreReference) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2DataStoreReference, dsr.Id, dsr.Name, len(dsr.IncomingAssociations), len(dsr.OutgoingAssociations))
+}
+
+func (ite *IntermediateThrowEvent) GetId() string {
+	return ite.Id
+}
+func (ite *IntermediateThrowEvent) GetName() string {
+	return ite.Name
+}
+func (ite *IntermediateThrowEvent) GetDocumentation() string { return ite.Documentation }
+func (ite *IntermediateThrowEvent) GetIncomingAssociations() []string {
+	return ite.IncomingAssociations
+}
+func (ite *IntermediateThrowEvent) GetOutgoingAssociations() []string {
+	return ite.OutgoingAssociations
+}
+func (ite *IntermediateThrowEvent) GetRules() []*Rule {
+	return GetRules(ite.ExtensionElements)
+}
+func (ite *IntermediateThrowEvent) GetType() ElementType {
+	return B2IntermediateThrowEvent
+}
+func (ite *IntermediateThrowEvent) GetXMLName() xml.Name {
+	return ite.XMLName
+}
+func (ite *IntermediateThrowEvent) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2IntermediateThrowEvent, ite.Id, ite.Name, len(ite.IncomingAssociations), len(ite.OutgoingAssociations))
 }
 
 func (ice *IntermediateCatchEvent) GetId() string {

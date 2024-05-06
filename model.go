@@ -160,6 +160,10 @@ type Process struct {
 	CallActivities               []*CallActivity           `xml:"callActivity"`
 	ParallelGateways             []*ParallelGateway        `xml:"parallelGateway"`
 	ExclusiveGateways            []*ExclusiveGateway       `xml:"exclusiveGateway"`
+	DataObjectReferences         []*DataObjectReference    `xml:"dataObjectReference"`
+	DataObjects                  []*DataObject             `xml:"dataObject"`
+	DataStoreReferences          []*DataStoreReference     `xml:"datastoreReference"`
+	IntermediateThrowEvents      []*IntermediateThrowEvent `xml:"intermediateThrowEvent"`
 	IntermediateCatchEvents      []*IntermediateCatchEvent `xml:"intermediateCatchEvent"`
 	EventBasedGateways           []*EventBasedGateway      `xml:"eventBasedGateway"`
 	ExtensionElements            *ExtensionElements        `xml:"extensionElements"`
@@ -216,6 +220,10 @@ type SubProcess struct {
 	CallActivities          []*CallActivity           `xml:"callActivity"`
 	ParallelGateways        []*ParallelGateway        `xml:"parallelGateway"`
 	ExclusiveGateways       []*ExclusiveGateway       `xml:"exclusiveGateway"`
+	DataObjectReferences    []*DataObjectReference    `xml:"dataObjectReference"`
+	DataObjects             []*DataObject             `xml:"dataObject"`
+	DataStoreReferences     []*DataStoreReference     `xml:"datastoreReference"`
+	IntermediateThrowEvents []*IntermediateThrowEvent `xml:"intermediateThrowEvent"`
 	IntermediateCatchEvents []*IntermediateCatchEvent `xml:"intermediateCatchEvent"`
 	EventBasedGateways      []*EventBasedGateway      `xml:"eventBasedGateway"`
 	Documentation           string                    `xml:"documentation"`
@@ -424,6 +432,19 @@ type ExclusiveGateway struct {
 	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
 }
 
+type IntermediateThrowEvent struct {
+	XMLName                xml.Name               `xml:"intermediateThrowEvent"`
+	Id                     string                 `xml:"id,attr"`
+	Name                   string                 `xml:"name,attr"`
+	IncomingAssociations   []string               `xml:"incoming"`
+	OutgoingAssociations   []string               `xml:"outgoing"`
+	MessageEventDefinition MessageEventDefinition `xml:"messageEventDefinition"`
+	TimerEventDefinition   TimerEventDefinition   `xml:"timerEventDefinition"`
+	ParallelMultiple       bool                   `xml:"parallelMultiple"`
+	Documentation          string                 `xml:"documentation"`
+	ExtensionElements      *ExtensionElements     `xml:"extensionElements"`
+}
+
 type IntermediateCatchEvent struct {
 	XMLName                xml.Name               `xml:"intermediateCatchEvent"`
 	Id                     string                 `xml:"id,attr"`
@@ -435,6 +456,38 @@ type IntermediateCatchEvent struct {
 	ParallelMultiple       bool                   `xml:"parallelMultiple"`
 	Documentation          string                 `xml:"documentation"`
 	ExtensionElements      *ExtensionElements     `xml:"extensionElements"`
+}
+
+type DataObjectReference struct {
+	XMLName              xml.Name           `xml:"dataObjectReference"`
+	Id                   string             `xml:"id,attr"`
+	Name                 string             `xml:"name,attr"`
+	IncomingAssociations []string           `xml:"incoming"`
+	OutgoingAssociations []string           `xml:"outgoing"`
+	DataObjectRef        string             `xml:"dataObjectRef,attr"`
+	Documentation        string             `xml:"documentation"`
+	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
+}
+
+type DataObject struct {
+	XMLName              xml.Name           `xml:"dataObject"`
+	Id                   string             `xml:"id,attr"`
+	Name                 string             `xml:"name,attr"`
+	IncomingAssociations []string           `xml:"incoming"`
+	OutgoingAssociations []string           `xml:"outgoing"`
+	DataObjectRef        string             `xml:"dataObjectRef,attr"`
+	Documentation        string             `xml:"documentation"`
+	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
+}
+
+type DataStoreReference struct {
+	XMLName              xml.Name           `xml:"dataStoreReference"`
+	Id                   string             `xml:"id,attr"`
+	Name                 string             `xml:"name,attr"`
+	IncomingAssociations []string           `xml:"incoming"`
+	OutgoingAssociations []string           `xml:"outgoing"`
+	Documentation        string             `xml:"documentation"`
+	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
 }
 
 type EventBasedGateway struct {

@@ -18,6 +18,7 @@ func NodeElementTypes() []ElementType {
 		B2EventBasedGateway,
 		B2ParallelGateway,
 		B2ExclusiveGateway,
+		B2IntermediateThrowEvent,
 		B2IntermediateCatchEvent,
 		B2SubProcess,
 	}

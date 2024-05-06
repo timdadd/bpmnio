@@ -184,6 +184,15 @@ func (p *Process) ApplyFunctionToBaseElements(f func(element BaseElement) bool) 
 		for _, exclusiveGateway := range p.ExclusiveGateways {
 			f(exclusiveGateway)
 		}
+		for _, dataObjectReference := range p.DataObjectReferences {
+			f(dataObjectReference)
+		}
+		for _, dataStoreReference := range p.DataStoreReferences {
+			f(dataStoreReference)
+		}
+		for _, intermediateThrowEvent := range p.IntermediateThrowEvents {
+			f(intermediateThrowEvent)
+		}
 		for _, intermediateCatchEvent := range p.IntermediateCatchEvents {
 			f(intermediateCatchEvent)
 		}
@@ -246,6 +255,15 @@ func (sp *SubProcess) ApplyFunctionToBaseElements(f func(element BaseElement) bo
 		}
 		for _, exclusiveGateway := range sp.ExclusiveGateways {
 			f(exclusiveGateway)
+		}
+		for _, dataObjectReference := range sp.DataObjectReferences {
+			f(dataObjectReference)
+		}
+		for _, dataStoreReference := range sp.DataStoreReferences {
+			f(dataStoreReference)
+		}
+		for _, intermediateThrowEvent := range sp.IntermediateThrowEvents {
+			f(intermediateThrowEvent)
 		}
 		for _, intermediateCatchEvent := range sp.IntermediateCatchEvents {
 			f(intermediateCatchEvent)
