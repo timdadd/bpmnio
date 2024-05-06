@@ -162,7 +162,7 @@ type Process struct {
 	ExclusiveGateways            []*ExclusiveGateway       `xml:"exclusiveGateway"`
 	DataObjectReferences         []*DataObjectReference    `xml:"dataObjectReference"`
 	DataObjects                  []*DataObject             `xml:"dataObject"`
-	DataStoreReferences          []*DataStoreReference     `xml:"datastoreReference"`
+	DataStoreReferences          []*DataStoreReference     `xml:"dataStoreReference"`
 	IntermediateThrowEvents      []*IntermediateThrowEvent `xml:"intermediateThrowEvent"`
 	IntermediateCatchEvents      []*IntermediateCatchEvent `xml:"intermediateCatchEvent"`
 	EventBasedGateways           []*EventBasedGateway      `xml:"eventBasedGateway"`
@@ -222,7 +222,7 @@ type SubProcess struct {
 	ExclusiveGateways       []*ExclusiveGateway       `xml:"exclusiveGateway"`
 	DataObjectReferences    []*DataObjectReference    `xml:"dataObjectReference"`
 	DataObjects             []*DataObject             `xml:"dataObject"`
-	DataStoreReferences     []*DataStoreReference     `xml:"datastoreReference"`
+	DataStoreReferences     []*DataStoreReference     `xml:"dataStoreReference"`
 	IntermediateThrowEvents []*IntermediateThrowEvent `xml:"intermediateThrowEvent"`
 	IntermediateCatchEvents []*IntermediateCatchEvent `xml:"intermediateCatchEvent"`
 	EventBasedGateways      []*EventBasedGateway      `xml:"eventBasedGateway"`
