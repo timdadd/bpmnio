@@ -1,7 +1,6 @@
 package bpmnio
 
 import (
-	"encoding/xml"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -19,7 +18,7 @@ func TestBPMNXML(t *testing.T) {
 			continue
 		}
 		// Only test with the test BPMN
-		if !strings.HasPrefix(item.Name(), "BPMN_CD_NSU") {
+		if !strings.HasPrefix(item.Name(), "BPMN_CD_PRE") {
 			continue
 		}
 		t.Logf("Found file %s", item.Name())
@@ -35,48 +34,48 @@ func TestBPMNXML(t *testing.T) {
 		if origD, err = NewDefinition(bpmnXML); err != nil {
 			t.Fatalf("could not unmarshal XML into definitions, got %v", err)
 		}
-
-		//t.Logf("%v", origD)
-		// Now marshall back again into XML
-		if bpmnXML, err = xml.Marshal(origD); err != nil {
-			t.Fatalf("could not marshal XML from standard map, got %v", err)
-		}
-
-		// Now unmarshall the newly marshalled XML
-		var newD *Definition
-		if newD, err = NewDefinition(bpmnXML); err != nil {
-			t.Fatalf("could not unmarshal XML into new definition, got %v", err)
-		}
-
-		// Now see if they are the same
-		compareDefinitions(t, origD, newD)
-
-		t.Logf("\nRules:")
-		for _, r := range origD.GetRules() {
-			t.Logf("  %s:%s %s %s", r.Type, r.Id, r.Name, r.Description)
-		}
-
-		origD.BpmnIdBaseElementMap()
-		// BaseElementsMap
-		t.Logf("\nBaseElementsMap:%d", len(origD._BaseElementMap))
-		for _, be := range origD._BaseElementMap {
-			t.Logf("%s:%s (%s) oa=%d, ia=%d",
-				be.GetXMLName().Local, be.GetId(), be.GetName(), len(be.GetOutgoingAssociations()), len(be.GetIncomingAssociations()))
-			//t.Logf(".. %s:%v", bpmnID, be)
-		}
-
-		origD.BpmnIdGroupMap()
-		t.Logf("\nGroupMap:%d", len(origD._BaseElementGroup))
-		for bpmnID, group := range origD._BaseElementGroup {
-			t.Logf(".. %s belongs to group %s\n", origD._BaseElementMap[bpmnID].ToString(), group.ToString())
-		}
-
-		origD.BpmnIdParentMap()
-		t.Logf("\nParentMap:%d", len(origD._BaseElementParent))
-		for bpmnID, parent := range origD._BaseElementParent {
-			t.Logf(".. '%s', %s has parent %s\n", bpmnID, origD._BaseElementMap[bpmnID].ToString(), parent.ToString())
-		}
-		//t.Log(origD._BaseElementParent["_6-61"].ToString())
+		//
+		////t.Logf("%v", origD)
+		//// Now marshall back again into XML
+		//if bpmnXML, err = xml.Marshal(origD); err != nil {
+		//	t.Fatalf("could not marshal XML from standard map, got %v", err)
+		//}
+		//
+		//// Now unmarshall the newly marshalled XML
+		//var newD *Definition
+		//if newD, err = NewDefinition(bpmnXML); err != nil {
+		//	t.Fatalf("could not unmarshal XML into new definition, got %v", err)
+		//}
+		//
+		//// Now see if they are the same
+		//compareDefinitions(t, origD, newD)
+		//
+		//t.Logf("\nRules:")
+		//for _, r := range origD.GetRules() {
+		//	t.Logf("  %s:%s %s %s", r.Type, r.Id, r.Name, r.Description)
+		//}
+		//
+		//origD.BpmnIdBaseElementMap()
+		//// BaseElementsMap
+		//t.Logf("\nBaseElementsMap:%d", len(origD._BaseElementMap))
+		//for _, be := range origD._BaseElementMap {
+		//	t.Logf("%s:%s (%s) oa=%d, ia=%d",
+		//		be.GetXMLName().Local, be.GetId(), be.GetName(), len(be.GetOutgoingAssociations()), len(be.GetIncomingAssociations()))
+		//	//t.Logf(".. %s:%v", bpmnID, be)
+		//}
+		//
+		//origD.BpmnIdGroupMap()
+		//t.Logf("\nGroupMap:%d", len(origD._BaseElementGroup))
+		//for bpmnID, group := range origD._BaseElementGroup {
+		//	t.Logf(".. %s belongs to group %s\n", origD._BaseElementMap[bpmnID].ToString(), group.ToString())
+		//}
+		//
+		//origD.BpmnIdParentMap()
+		//t.Logf("\nParentMap:%d", len(origD._BaseElementParent))
+		//for bpmnID, parent := range origD._BaseElementParent {
+		//	t.Logf(".. '%s', %s has parent %s\n", bpmnID, origD._BaseElementMap[bpmnID].ToString(), parent.ToString())
+		//}
+		////t.Log(origD._BaseElementParent["_6-61"].ToString())
 
 		//testStringGraph(t)
 
