@@ -309,9 +309,12 @@ func (t *topology) isMainPath(be BaseElement) bool {
 	if len(be.GetOutgoingAssociations()) == 0 {
 		return false
 	}
-	for _, nextBE := range t.incomingSeqCounts[be.GetId()].outgoingBaseElements {
-		if t.isMainPath(nextBE) {
-			return true
+	iscs := t.incomingSeqCounts[be.GetId()]
+	if iscs != nil {
+		for _, nextBE := range iscs.outgoingBaseElements {
+			if t.isMainPath(nextBE) {
+				return true
+			}
 		}
 	}
 	return false
