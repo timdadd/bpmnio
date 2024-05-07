@@ -19,7 +19,7 @@ func TestBPMNXML(t *testing.T) {
 			continue
 		}
 		// Only test with the test BPMN
-		if !strings.HasPrefix(item.Name(), "test") {
+		if !strings.HasPrefix(item.Name(), "BPMN_CD_NSU") {
 			continue
 		}
 		t.Logf("Found file %s", item.Name())
@@ -76,7 +76,7 @@ func TestBPMNXML(t *testing.T) {
 		for bpmnID, parent := range origD._BaseElementParent {
 			t.Logf(".. '%s', %s has parent %s\n", bpmnID, origD._BaseElementMap[bpmnID].ToString(), parent.ToString())
 		}
-		t.Log(origD._BaseElementParent["_6-61"].ToString())
+		//t.Log(origD._BaseElementParent["_6-61"].ToString())
 
 		//testStringGraph(t)
 
@@ -89,7 +89,6 @@ func TestBPMNXML(t *testing.T) {
 				for _, r := range be.GetRules() {
 					rules = append(rules, fmt.Sprintf("(%s) %s %s", r.Type, r.Name, r.Description))
 				}
-
 				if be.GetType() == B2SequenceFlow {
 					t.Logf("  %s: %s: %s : %s : %s",
 						origD.GroupName(be),

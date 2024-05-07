@@ -24,10 +24,17 @@ func NodeElementTypes() []ElementType {
 	}
 }
 
-func LinkElementTypes() []ElementType {
-	return []ElementType{
-		B2MessageFlow,
-		B2SequenceFlow,
+func LinkElementTypes(mode ElementType) []ElementType {
+	if mode == B2Process {
+		return []ElementType{
+			B2SequenceFlow,
+		}
+	} else {
+		return []ElementType{
+			B2MessageFlow,
+			B2SequenceFlow,
+		}
+
 	}
 }
 
