@@ -142,22 +142,23 @@ func (p *Process) FindBaseElementById(id string) (baseElement BaseElement) {
 	return
 }
 
-type incomingSeqCount struct {
+type TopologyBaseElements struct {
 	id                                     string
 	be                                     BaseElement
+	step                                   string
+	sortStep                               string
 	numberOfIncomingSequenceFlows          int
 	numberOfProcessedIncomingSequenceFlows int
 	outgoingBaseElements                   []BaseElement
 }
 type topology struct {
-	incomingSeqCounts map[string]*incomingSeqCount
-	orderedList       []BaseElement          // [step]baseElement
-	paths             map[BaseElement]string // [step]baseElement
-	nodeMap           map[string]BaseElement
-	linkMap           map[string]BaseElement
-	iscLock           sync.RWMutex
-	pathLock          sync.RWMutex
-	dataLock          sync.RWMutex
+	topologyBaseElements map[string]*TopologyBaseElements
+	processed            map[BaseElement]bool // have we already processed this element
+	nodeMap              map[string]BaseElement
+	linkMap              map[string]BaseElement
+	iscLock              sync.RWMutex
+	pathLock             sync.RWMutex
+	dataLock             sync.RWMutex
 }
 
 // TopologicalSort
@@ -166,130 +167,132 @@ type topology struct {
 // But enhanced to prefer sequence flows over number of connections
 //
 // includeLinks is optional
-type item struct {
-	step        string
-	baseElement BaseElement
+func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement) {
+	tbeMap := p.TopologicalSortMap(includeLinks)
+	orderedList = make([]BaseElement, 0, len(tbeMap))
+	for _, isc := range tbeMap {
+		orderedList = append(orderedList, isc.be)
+	}
+	sort.Slice(orderedList, func(i, j int) bool {
+		return tbeMap[orderedList[i].GetId()].sortStep < tbeMap[orderedList[j].GetId()].sortStep
+	})
+	//for i, be := range t.orderedList {
+	//	fmt.Println(i, t.paths[be], be.GetType(), be.GetName())
+	//}
+	return
 }
 
-func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement) {
+// TopologicalSortMap returns the TopologyBaseElements map is by bpmnid
+func (p *Process) TopologicalSortMap(includeLinks bool) map[string]*TopologyBaseElements {
 	t := &topology{
-		incomingSeqCounts: nil,
-		orderedList:       nil,
-		paths:             nil,
-		nodeMap:           p.FindNodes(),
-		linkMap:           p.FindLinks(B2Process),
-		iscLock:           sync.RWMutex{}, // lock for incomingSeqCounts
-		pathLock:          sync.RWMutex{},
-		dataLock:          sync.RWMutex{},
+		topologyBaseElements: nil,
+		nodeMap:              p.FindNodes(),
+		linkMap:              p.FindLinks(B2Process),
+		iscLock:              sync.RWMutex{}, // lock for topologyBaseElements
+		pathLock:             sync.RWMutex{},
+		dataLock:             sync.RWMutex{},
 	}
-	t.incomingSeqCounts = make(map[string]*incomingSeqCount, len(t.nodeMap))
-	t.orderedList = make([]BaseElement, 0, len(t.nodeMap))
-	t.paths = make(map[BaseElement]string, len(t.nodeMap))
+	t.topologyBaseElements = make(map[string]*TopologyBaseElements, len(t.nodeMap)) // map[bpmnID]
+	t.processed = make(map[BaseElement]bool, len(t.nodeMap))                        // map[baseEle]
 
-	// incomingSeqCounts: elements with number of incoming sequence flows & number of processed incoming sequence flows
+	// topologyBaseElements: elements with number of incoming sequence flows & number of processed incoming sequence flows
 	// If processed = total then this is next best step
 	for k, be := range t.nodeMap {
-		t.incomingSeqCounts[k] = &incomingSeqCount{id: k, be: be}
-		t.orderedList = append(t.orderedList, be)
+		t.topologyBaseElements[k] = &TopologyBaseElements{id: k, be: be}
+		//t.orderedList = append(t.orderedList, be)
 	}
 	for _, l := range t.linkMap {
 		for _, toBpmnID := range l.GetOutgoingAssociations() {
-			if isc := t.incomingSeqCounts[toBpmnID]; isc == nil {
+			if tbe := t.topologyBaseElements[toBpmnID]; tbe == nil {
 				fmt.Println("outgoing id on link isn't a node", toBpmnID)
 			} else {
-				isc.numberOfIncomingSequenceFlows++
+				tbe.numberOfIncomingSequenceFlows++
 				// Now make a record the outgoing BE on the incoming ISC
 				for _, fromBpmnID := range l.GetIncomingAssociations() {
-					if isc = t.incomingSeqCounts[fromBpmnID]; isc == nil {
+					if tbe = t.topologyBaseElements[fromBpmnID]; tbe == nil {
 						fmt.Println("incoming id on link isn't a node", fromBpmnID)
 					} else {
-						isc.outgoingBaseElements = append(isc.outgoingBaseElements, t.nodeMap[toBpmnID])
+						tbe.outgoingBaseElements = append(tbe.outgoingBaseElements, t.nodeMap[toBpmnID])
 					}
 				}
 			}
 		}
 	}
-	for k := range t.nodeMap {
-		fmt.Println(k, t.incomingSeqCounts[k].numberOfIncomingSequenceFlows, t.nodeMap[k].ToString())
-	}
-
-	t.followPath("", 1, nil)
-
-	sort.Slice(t.orderedList, func(i, j int) bool {
-		return t.paths[t.orderedList[i]] < t.paths[t.orderedList[j]]
-	})
-	//for i, be := range t.orderedList {
-	//	fmt.Println(i, t.paths[be], be.GetType(), be.GetName())
+	//for k := range t.nodeMap {
+	//	fmt.Println(k, t.topologyBaseElements[k].numberOfIncomingSequenceFlows, t.nodeMap[k].ToString())
 	//}
-	return t.orderedList
+
+	t.followPath("", "", 1, nil)
+	return t.topologyBaseElements
 
 }
 
 // The path starts at base element and finishes at a gateway or end of the line
-func (t *topology) followPath(prefix string, step int, nextElement BaseElement) {
+func (t *topology) followPath(prefix, sortPrefix string, step int, nextElement BaseElement) {
 	t.iscLock.Lock()
-	var isc *incomingSeqCount
+	var tbe *TopologyBaseElements
 	for {
-		for _, iscNP := range t.incomingSeqCounts {
-			if iscNP.numberOfIncomingSequenceFlows == iscNP.numberOfProcessedIncomingSequenceFlows &&
-				(nextElement == nil || iscNP.be == nextElement) {
-				//fmt.Println("==", i, iscNP)
-				isc = iscNP
+		for _, tbeNP := range t.topologyBaseElements {
+			if tbeNP.sortStep == "" && tbeNP.numberOfIncomingSequenceFlows == tbeNP.numberOfProcessedIncomingSequenceFlows &&
+				(nextElement == nil || tbeNP.be == nextElement) {
+				//fmt.Println("==", i, tbeNP)
+				tbe = tbeNP
 				break
 			}
 		}
-		if isc != nil {
+		if tbe != nil {
 			break
 		}
 		// if no such element can be found then
-		// triple:an element in incomingSeqCounts with the highest processed sequence flow number;
+		// triple:an element in topologyBaseElements with the highest processed sequence flow number;
 		var maxNumberProcessed = -1
-		for _, iscMax := range t.incomingSeqCounts {
-			if iscMax.numberOfProcessedIncomingSequenceFlows > maxNumberProcessed &&
-				(nextElement == nil || iscMax.be == nextElement) {
-				isc = iscMax
-				maxNumberProcessed = isc.numberOfProcessedIncomingSequenceFlows
-				//fmt.Println("max", i, isc)
+		for _, tbeMax := range t.topologyBaseElements {
+			if tbeMax.sortStep == "" && tbeMax.numberOfProcessedIncomingSequenceFlows > maxNumberProcessed &&
+				(nextElement == nil || tbeMax.be == nextElement) {
+				tbe = tbeMax
+				maxNumberProcessed = tbe.numberOfProcessedIncomingSequenceFlows
+				//fmt.Println("max", i, tbe)
 			}
 		}
-		if isc != nil || nextElement == nil {
+		if tbe != nil || nextElement == nil {
 			break
 		}
 		nextElement = nil
 	}
 	// Found something suitable
 	var outgoingBEs []BaseElement
-	if isc != nil {
-		isc.numberOfProcessedIncomingSequenceFlows++
-		// If this is the last thing to coming into this isc then continue
-		if isc.numberOfProcessedIncomingSequenceFlows == 1 {
-			outgoingBEs = isc.outgoingBaseElements
+	if tbe != nil {
+		tbe.numberOfProcessedIncomingSequenceFlows++
+		// If this is the last thing to coming into this tbe then continue
+		if tbe.numberOfProcessedIncomingSequenceFlows == 1 {
+			outgoingBEs = tbe.outgoingBaseElements
 		}
+		tbe.sortStep = fmt.Sprintf("%s%04d", sortPrefix, step)
+		tbe.step = fmt.Sprintf("%s%04d", prefix, step)
+		t.processed[tbe.be] = true
 	}
 	t.iscLock.Unlock()
-
-	t.paths[isc.be] = fmt.Sprintf("%s%04d", prefix, step)
 
 	// Now start a path for the next items
 	var mainBEs []BaseElement
 	i := 0
 	for _, be := range outgoingBEs {
-		if t.paths[be] > "" {
+		if t.processed[be] {
 			continue
 		}
-		if t.isMainPath(be) {
+		if t.isMainPath(be, nil) {
 			mainBEs = append(mainBEs, be)
 		} else {
 			// Follow this path first to get it out of the way
 			i++
-			t.followPath(fmt.Sprintf("%s.", t.paths[isc.be]), i, be)
+			t.followPath(fmt.Sprintf("%s.", tbe.step), fmt.Sprintf("%s.", tbe.sortStep), i, be)
 		}
 	}
 	for j, be := range mainBEs {
 		if j == 0 {
-			t.followPath(prefix, step+1, be)
+			t.followPath(prefix, sortPrefix, step+1, be)
 		} else {
-			t.followPath(fmt.Sprintf("%s.", t.paths[isc.be]), j+i, be)
+			t.followPath(fmt.Sprintf("%s.", tbe.step), fmt.Sprintf("%s.", tbe.step), j+i, be)
 
 		}
 	}
@@ -298,9 +301,12 @@ func (t *topology) followPath(prefix string, step int, nextElement BaseElement) 
 
 // Does this BE lead to the main path
 // If it does then there will be a stop event or intermediate throw event at the end
-func (t *topology) isMainPath(be BaseElement) bool {
+func (t *topology) isMainPath(be BaseElement, visited map[BaseElement]bool) bool {
 	if be == nil {
 		return false
+	}
+	if visited == nil {
+		visited = make(map[BaseElement]bool)
 	}
 	switch be.GetType() {
 	case B2IntermediateThrowEvent, B2EndEvent:
@@ -309,10 +315,14 @@ func (t *topology) isMainPath(be BaseElement) bool {
 	if len(be.GetOutgoingAssociations()) == 0 {
 		return false
 	}
-	iscs := t.incomingSeqCounts[be.GetId()]
+	iscs := t.topologyBaseElements[be.GetId()]
 	if iscs != nil {
 		for _, nextBE := range iscs.outgoingBaseElements {
-			if t.isMainPath(nextBE) {
+			if visited[nextBE] {
+				continue
+			}
+			visited[nextBE] = true
+			if t.isMainPath(nextBE, visited) {
 				return true
 			}
 		}
@@ -329,38 +339,38 @@ func (t *topology) isMainPath(be BaseElement) bool {
 //func (p *Process) TopologicalSort(includeLinks bool) (orderedList []BaseElement) {
 //	nodeMap := p.FindNodes()
 //	linkMap := p.FindLinks(B2Process) // Links/Edges with predecessor & successor
-//	// incomingSeqCounts: elements with number of incoming sequence flows & number of processed incoming sequence flows
+//	// topologyBaseElements: elements with number of incoming sequence flows & number of processed incoming sequence flows
 //	// If processed = total then this is next best step
-//	type incomingSeqCount struct {
+//	type TopologyBaseElements struct {
 //		id                                     string
 //		be                                     BaseElement
 //		numberOfIncomingSequenceFlows          int
 //		numberOfProcessedIncomingSequenceFlows int
 //	}
-//	incomingSeqCounts := make(map[string]*incomingSeqCount, len(nodeMap))
+//	topologyBaseElements := make(map[string]*TopologyBaseElements, len(nodeMap))
 //	for k, be := range nodeMap {
-//		incomingSeqCounts[k] = &incomingSeqCount{id: k, be: be}
+//		topologyBaseElements[k] = &TopologyBaseElements{id: k, be: be}
 //	}
 //	for _, l := range linkMap {
 //		for _, incomingAssocBPMNId := range l.GetOutgoingAssociations() {
-//			if incomingSeqCounts[incomingAssocBPMNId] == nil {
+//			if topologyBaseElements[incomingAssocBPMNId] == nil {
 //				fmt.Println("id on link isn't a node", incomingAssocBPMNId)
 //			} else {
-//				incomingSeqCounts[incomingAssocBPMNId].numberOfIncomingSequenceFlows++
+//				topologyBaseElements[incomingAssocBPMNId].numberOfIncomingSequenceFlows++
 //			}
 //		}
 //	}
 //	for k := range nodeMap {
-//		fmt.Println(k, incomingSeqCounts[k].numberOfIncomingSequenceFlows, nodeMap[k].ToString())
+//		fmt.Println(k, topologyBaseElements[k].numberOfIncomingSequenceFlows, nodeMap[k].ToString())
 //	}
-//	// incomingSeqCounts Initialised
+//	// topologyBaseElements Initialised
 //
 //	inOrderedList := map[string]bool{}                 // id added if in the ordered list
 //	var pathPreferredNodes = make(map[string]bool, 4)  // This is to prefer a node joined by a link over anything else following the current route
 //	var otherPreferredNodes = make(map[string]bool, 4) // This is to prefer a node we've seen that is a different path
-//	// while incomingSeqCounts not empty do
-//	for len(incomingSeqCounts) > 0 {
-//		var isc *incomingSeqCount
+//	// while topologyBaseElements not empty do
+//	for len(topologyBaseElements) > 0 {
+//		var isc *TopologyBaseElements
 //		// Go around this loop twice, the first time try and find a preferred node
 //		//fmt.Println("preferred nodes:", len(pathPreferredNodes))
 //		//for id := range pathPreferredNodes {
@@ -377,8 +387,8 @@ func (t *topology) isMainPath(be BaseElement) bool {
 //			if i < 2 && len(preferredNodes) == 0 {
 //				continue
 //			}
-//			// triple: an element in incomingSeqCounts with incoming sequence flows = number of processed;
-//			for _, iscNP := range incomingSeqCounts {
+//			// triple: an element in topologyBaseElements with incoming sequence flows = number of processed;
+//			for _, iscNP := range topologyBaseElements {
 //				if iscNP.numberOfIncomingSequenceFlows == iscNP.numberOfProcessedIncomingSequenceFlows &&
 //					(preferredNodes[iscNP.id] || i == 2) {
 //					//fmt.Println("==", i, iscNP)
@@ -390,9 +400,9 @@ func (t *topology) isMainPath(be BaseElement) bool {
 //				break
 //			}
 //			// if no such element can be found then
-//			// triple:an element in incomingSeqCounts with the highest processed sequence flow number;
+//			// triple:an element in topologyBaseElements with the highest processed sequence flow number;
 //			var maxNumberProcessed = -1
-//			for _, iscMax := range incomingSeqCounts {
+//			for _, iscMax := range topologyBaseElements {
 //				if iscMax.numberOfProcessedIncomingSequenceFlows > maxNumberProcessed &&
 //					(preferredNodes[iscMax.id] || i == 2) {
 //					isc = iscMax
@@ -454,9 +464,9 @@ func (t *topology) isMainPath(be BaseElement) bool {
 //		}
 //
 //		inOrderedList[isc.id] = true
-//		delete(incomingSeqCounts, isc.id)                           //incomingSeqCounts← incomingSeqCounts\{triple};
-//		newIncomingSequenceCounts := map[string]*incomingSeqCount{} // newIncomingSeqCount← {};
-//		for k, v := range incomingSeqCounts {                       //for all x in incomingSeqCounts do
+//		delete(topologyBaseElements, isc.id)                           //topologyBaseElements← topologyBaseElements\{triple};
+//		newIncomingSequenceCounts := map[string]*TopologyBaseElements{} // newIncomingSeqCount← {};
+//		for k, v := range topologyBaseElements {                       //for all x in topologyBaseElements do
 //			var processedLinks []BaseElement
 //			// processedEdges ←{e| e ∈ sequenceFlowArray, triple.elementID = e.predecessorID, x.elementId = e.successorID };
 //			for _, l := range linkMap {
@@ -466,14 +476,14 @@ func (t *topology) isMainPath(be BaseElement) bool {
 //					}
 //				}
 //			}
-//			newIncomingSequenceCounts[k] = &incomingSeqCount{
+//			newIncomingSequenceCounts[k] = &TopologyBaseElements{
 //				id:                                     k,
 //				be:                                     v.be,
 //				numberOfIncomingSequenceFlows:          v.numberOfIncomingSequenceFlows,
 //				numberOfProcessedIncomingSequenceFlows: v.numberOfProcessedIncomingSequenceFlows + len(processedLinks),
 //			}
 //		}
-//		incomingSeqCounts = newIncomingSequenceCounts
+//		topologyBaseElements = newIncomingSequenceCounts
 //	}
 //	return orderedList
 //}
