@@ -161,7 +161,7 @@ type topology struct {
 }
 
 // TopologicalSort
-// Based upon algorithm published by Kai Kretschmann
+// Loosely based upon algorithm published by Kai Kretschmann
 // Design and Implementation of a Framework for the Creation of BPMN 2.0 Process Models based on Textual Descriptions
 // But enhanced to prefer sequence flows over number of connections
 //
@@ -207,11 +207,11 @@ func (p *Process) TopologicalSortMap(includeLinks bool) map[string]*TopologyBase
 		case *SequenceFlow:
 			link := l.(*SequenceFlow)
 			var tbeTo, tbeFrom *TopologyBaseElement
-			if tbeTo = t.topologyBaseElements[link.SourceRef]; tbeTo == nil {
+			if tbeTo = t.topologyBaseElements[link.TargetRef]; tbeTo == nil {
 				//fmt.Println("sourceRef on link isn't a node", link.SourceRef)
 				continue
 			}
-			if tbeFrom = t.topologyBaseElements[link.TargetRef]; tbeFrom == nil {
+			if tbeFrom = t.topologyBaseElements[link.SourceRef]; tbeFrom == nil {
 				//fmt.Println("targetRef on link isn't a node", link.TargetRef)
 				continue
 			}

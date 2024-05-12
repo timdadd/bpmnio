@@ -18,7 +18,7 @@ func TestBPMNXML(t *testing.T) {
 			continue
 		}
 		// Only test with the test BPMN
-		if !strings.HasPrefix(item.Name(), "BPMN_CD_NS_esd") {
+		if !strings.HasPrefix(item.Name(), "BPMN_CD_NS_POS") {
 			continue
 		}
 		t.Logf("Found file %s", item.Name())
