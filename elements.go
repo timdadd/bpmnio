@@ -16,6 +16,7 @@ const (
 	B2CategoryValue          ElementType = "CATEGORY_VALUE"
 	B2LaneSet                ElementType = "LANE_SET"
 	B2Lane                   ElementType = "LANE"
+	B2ChildLaneSet           ElementType = "CHILD_LANE_SET"
 	B2StartEvent             ElementType = "START_EVENT"
 	B2EndEvent               ElementType = "END_EVENT"
 	B2Process                ElementType = "PROCESS"
@@ -40,6 +41,9 @@ const (
 	B2SequenceFlow           ElementType = "SEQUENCE_FLOW"
 )
 
+// BaseElement does not follow the strict BPMN 2 definition of a base element as described by [omg]
+//
+// [omg]: https://www.omg.org/spec/BPMN/2.0.1/PDF
 type BaseElement interface {
 	GetId() string
 	GetName() string
@@ -121,6 +125,30 @@ func (l *Lane) GetType() ElementType {
 func (l *Lane) GetXMLName() xml.Name { return l.XMLName }
 func (l *Lane) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) %v", B2Lane, l.Id, l.Name, l.FlowNodeRefs)
+}
+
+// *** ChildLaneSet methods ***
+func (cls *ChildLaneSet) GetId() string {
+	return cls.Id
+}
+func (cls *ChildLaneSet) GetName() string {
+	return cls.Name
+}
+func (cls *ChildLaneSet) GetDocumentation() string { return cls.Documentation }
+func (cls *ChildLaneSet) GetIncomingAssociations() []string {
+	return []string{}
+}
+func (cls *ChildLaneSet) GetOutgoingAssociations() []string {
+	return []string{}
+}
+func (cls *ChildLaneSet) GetRules() []*Rule { return GetRules(cls.ExtensionElements) }
+func (cls *ChildLaneSet) GetType() ElementType {
+	return B2ChildLaneSet
+}
+func (cls *ChildLaneSet) GetXMLName() xml.Name { return cls.XMLName }
+func (cls *ChildLaneSet) ToString() string {
+	return fmt.Sprintf("%s:%s (%s)",
+		B2ChildLaneSet, cls.Id, cls.Name)
 }
 
 // ***  Collaboration methods ***

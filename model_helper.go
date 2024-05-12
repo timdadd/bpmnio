@@ -313,6 +313,21 @@ func (ls *LaneSet) ApplyFunctionToBaseElements(f func(element BaseElement) bool)
 	if f(ls) {
 		for _, lane := range ls.Lanes {
 			f(lane)
+			lane.ChildLaneSet.ApplyFunctionToBaseElements(f)
+		}
+	}
+}
+
+// ApplyFunctionToBaseElements applies a function to ChildLaneSet and all children as long as function returns true
+func (cls *ChildLaneSet) ApplyFunctionToBaseElements(f func(element BaseElement) bool) {
+	if cls == nil {
+		return // Nothing to see here
+	}
+
+	if f(cls) {
+		for _, lane := range cls.Lanes {
+			f(lane)
+			lane.ChildLaneSet.ApplyFunctionToBaseElements(f)
 		}
 	}
 }

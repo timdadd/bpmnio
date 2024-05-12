@@ -187,6 +187,16 @@ type Lane struct {
 	ProcessRef        string             `xml:"processRef"`
 	FlowNodeRefs      []string           `xml:"flowNodeRef"`
 	Documentation     string             `xml:"documentation"`
+	ChildLaneSet      *ChildLaneSet      `xml:"childLaneSet"`
+	ExtensionElements *ExtensionElements `xml:"extensionElements"`
+}
+
+type ChildLaneSet struct {
+	XMLName           xml.Name           `xml:"childLaneSet"`
+	Id                string             `xml:"id,attr"`
+	Name              string             `xml:"name,attr"`
+	Lanes             []*Lane            `xml:"lane"`
+	Documentation     string             `xml:"documentation"`
 	ExtensionElements *ExtensionElements `xml:"extensionElements"`
 }
 
