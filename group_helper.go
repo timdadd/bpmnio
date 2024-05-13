@@ -20,7 +20,6 @@ func (d *Definition) BpmnIdGroupMap() map[string]*Group {
 			// Find all the groups within the diagram / Plane
 			var groupShapes []shapeBE
 			for _, shape := range plane.BpmnShape {
-
 				if e, inMap := d._BaseElementMap[shape.BpmnElement]; inMap {
 					if e.GetType() == B2Group {
 						group := d._BaseElementMap[shape.BpmnElement].(*Group)

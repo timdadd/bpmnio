@@ -19,7 +19,8 @@ type Definition struct {
 	Messages           []*TMessage            `xml:"message"`
 	BpmnDiagram        []*Diagram             `xml:"BPMNDiagram"`
 	_BaseElementMap    map[string]BaseElement // [Id]BaseElement
-	_BaseElementGroup  map[string]*Group      // [Id]Group
+	_BpmnIdShapeMap    map[string]*Shape      // [bpmnID]Shape
+	_BaseElementGroup  map[string]*Group      // [bpmnID]Group
 	_BaseElementParent map[string]BaseElement // [Id]ParentElement (e.g. process, lane, sub-process)
 	_bpmnXML           string
 }
@@ -48,6 +49,10 @@ type Shape struct {
 	IsExpanded       bool     `xml:"isExpanded,attr,omitempty"`
 	IsMarkerVisible  bool     `xml:"isMarkerVisible,attr,omitempty"`
 	IsMessageVisible bool     `xml:"isMessageVisible,attr,omitempty"`
+	Stroke           string   `xml:"stroke,attr,omitempty"`
+	Fill             string   `xml:"fill,attr,omitempty"`
+	BackgroundColour string   `xml:"background-color,attr,omitempty"`
+	BorderColour     string   `xml:"border-color,attr,omitempty"`
 	BpmnBounds       Bounds   `xml:"Bounds"`
 	BpmnLabel        []*Label `xml:"BPMNLabel,omitempty"`
 }

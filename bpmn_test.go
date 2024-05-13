@@ -18,7 +18,7 @@ func TestBPMNXML(t *testing.T) {
 			continue
 		}
 		// Only test with the test BPMN
-		if !strings.HasPrefix(item.Name(), "BPMN_CD_NS_POS") {
+		if !strings.HasPrefix(item.Name(), "BPMN_CD_NS_esd") {
 			continue
 		}
 		t.Logf("Found file %s", item.Name())
@@ -96,12 +96,13 @@ func TestBPMNXML(t *testing.T) {
 						strings.Join(rules, ", "),
 						origD.ParentName(be))
 				} else {
-					t.Logf("  %s: %s: %s : %s : %s",
+					t.Logf("  %s: %s: %s : %s : %s: %v",
 						origD.GroupName(be),
 						be.GetType(),
 						be.GetName(),
 						strings.Join(rules, ", "),
-						origD.ParentName(be))
+						origD.Parent(be).GetId(),
+						origD.ShapeOfBaseElement(origD.Parent(be)).Id)
 				}
 			}
 		}

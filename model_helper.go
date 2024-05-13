@@ -40,7 +40,7 @@ func (d *Definition) FindBaseElementsByType(t ElementType) (elements []BaseEleme
 	return
 }
 
-// FindBaseElementsByTypes finds all BaseElements that have one of the a specific Types
+// FindBaseElementsByTypes finds all BaseElements that have one of the specific Types
 // Interfaces are just pointers and types so no need for *
 func (d *Definition) FindBaseElementsByTypes(types ...ElementType) (elements []BaseElement) {
 	// Create a function that checks the type and appends if found
@@ -61,14 +61,12 @@ func (d *Definition) FindBaseElementsByTypes(types ...ElementType) (elements []B
 // FindBaseElementById finds all BaseElements that have a specific ID
 func (d *Definition) FindBaseElementById(id string) (element BaseElement) {
 	d.BpmnIdBaseElementMap()
-	if be, inMap := d._BaseElementMap[id]; inMap {
-		return be
-	}
-	return nil
+	return d._BaseElementMap[id]
 }
 
 // FindBaseElementsByTypeId checks the type as well
 func (d *Definition) FindBaseElementsByTypeId(t ElementType, id string) (elements BaseElement) {
+	d.BpmnIdBaseElementMap()
 	if be, inMap := d._BaseElementMap[id]; inMap && be.GetType() == t {
 		return be
 	}

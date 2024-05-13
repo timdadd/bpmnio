@@ -1,96 +1,72 @@
 package bpmnio
 
-//func (definition *Definition) BuildShapeBoundsMap() {
-//	definition._shapeBoundsMap = map[string]Bounds{}
-//	for _, diagram := range definition.BpmnDiagram {
-//		for _, plane := range diagram.BpmnPlane {
-//			for _, shape := range plane.BpmnShape {
-//				definition._shapeBoundsMap[shape.BpmnElement] = shape.BpmnBounds
-//			}
-//		}
-//	}
-//}
+// ApplyFunctionToShapes applies a function to all shapes within Definition
+func (d *Definition) ApplyFunctionToShapes(f func(shape *Shape)) {
+	if d == nil {
+		return
+	}
+	// Each diagram has a different plane
+	for _, diagram := range d.BpmnDiagram {
+		for _, plane := range diagram.BpmnPlane {
+			for _, shape := range plane.BpmnShape {
+				f(shape)
+			}
+		}
+	}
+}
 
-//// BuildShapeHierarchyMap builds a hierarchy of shapes
-//func (d *Definition) BuildShapeHierarchyMap() {
-//	//if len(d._shapeBoundsMap) == 0 {
-//	//	d.BuildShapeBoundsMap()
-//	//}
-//	d.BuildBaseElementsMap()
-//	//pc := make(map[string][]Shape) // Parent has children
-//	cp := make(map[*Shape]*Shape)   // Children has parent
-//	gc := make(map[*Shape][]*Shape) // Group has Children
-//	for _, diagram := range d.BpmnDiagram {
-//		var maxArea int
-//		for _, plane := range diagram.BpmnPlane {
-//			for _, shape := range plane.BpmnShape {
-//				shape.BpmnBounds.area = shape.BpmnBounds.Width * shape.BpmnBounds.Height
-//				//shape.BpmnBounds.area = max(shape.BpmnBounds.area, -shape.BpmnBounds.area) // ABS
-//				//fmt.Printf("shape: %s:%d\n", shape.Id, shape.BpmnBounds.area)
-//				if shape.BpmnBounds.area > maxArea {
-//					maxArea = shape.BpmnBounds.area
-//				}
-//				//if shape.BpmnBounds.area == 0 {
-//				//	fmt.Printf("WHY ZERO?: %s (%v):%d\n", shape.Id, &shape, shape.BpmnBounds.area)
-//				//}
-//			}
-//			//fmt.Printf("max area: %d\n", maxArea)
-//			for _, shape := range plane.BpmnShape {
-//				//if shape.BpmnBounds.area == 0 {
-//				//	fmt.Printf("WHY ZERO?: %s (%v):%d\n", shape.Id, &shape, shape.BpmnBounds.area)
-//				//}
-//				// Does this element exist within another element?
-//				for _, parentShape := range plane.BpmnShape {
-//					if parentShape.Id == shape.Id {
-//						continue
-//					}
-//					if shapeWithinShape(*shape, *parentShape) {
-//						//fmt.Println(shape.Id, shape.BpmnElement, "within", parentShape.Id, parentShape.BpmnElement)
-//						//fmt.Printf("%s within %s\n",
-//						//	d._BaseElementMap[shape.BpmnElement].ToString(),
-//						//	d._BaseElementMap[parentShape.BpmnElement].ToString())
-//						//if parentShape.BpmnBounds.area == 0 {
-//						//	fmt.Printf("Parent Area=0: %s:%v\n", d._BaseElementMap[shape.BpmnElement].ToString(), shape.BpmnBounds)
-//						//}
-//						//if shape.BpmnBounds.area == 0 {
-//						//	fmt.Printf("Area=0: %s:%v\n", d._BaseElementMap[shape.BpmnElement].ToString(), shape.BpmnBounds)
-//						//}
-//
-//						// If parent is a group then add anyway everything is added to the group
-//						if d._BaseElementMap[parentShape.BpmnElement].GetType() == B2Group {
-//							gc[parentShape] = append(gc[parentShape], shape)
-//							continue // Don't make group part of any other set
-//						}
-//
-//						if pShape, ok := cp[shape]; ok {
-//							//if pShape.BpmnBounds.area == 0 {
-//							//	fmt.Printf("AREA=0: %s:%d\n", d._BaseElementMap[shape.BpmnElement].ToString(), shape.BpmnBounds.area)
-//							//}
-//							// Associate to the parent with the smallest area
-//							if pShape.BpmnBounds.area > parentShape.BpmnBounds.area {
-//								cp[shape] = parentShape
-//							}
-//						} else {
-//							cp[shape] = parentShape
-//						}
-//
-//					}
-//				}
-//			}
-//		}
-//	}
-//	d._ShapeHierarchyMap = make(map[string][]BaseElement, len(cp))
-//	for childShape, parentShape := range cp {
-//		d._ShapeHierarchyMap[parentShape.BpmnElement] =
-//			append(d._ShapeHierarchyMap[parentShape.BpmnElement], d._BaseElementMap[childShape.BpmnElement])
-//	}
-//	for groupShape, shapes := range gc {
-//		d._ShapeHierarchyMap[groupShape.BpmnElement] = make([]BaseElement, len(shapes))
-//		for i, shape := range shapes {
-//			d._ShapeHierarchyMap[groupShape.BpmnElement][i] = d._BaseElementMap[shape.BpmnElement]
-//		}
-//	}
-//}
+// BpmnIdShapeMap stores and returns a mapping of Shape by BPMN_ID if it hasn't already been created
+func (d *Definition) BpmnIdShapeMap() map[string]*Shape {
+	if len(d._BpmnIdShapeMap) == 0 {
+		shapes := d.FindShapes()
+		d._BpmnIdShapeMap = make(map[string]*Shape, len(shapes))
+		for _, s := range shapes {
+			d._BpmnIdShapeMap[s.BpmnElement] = s
+		}
+	}
+	return d._BpmnIdShapeMap
+}
+
+// FindShapes finds all shapes in the definition
+func (d *Definition) FindShapes() (shapes []*Shape) {
+	fAppendShape := func(shape *Shape) {
+		shapes = append(shapes, shape)
+	}
+	d.ApplyFunctionToShapes(fAppendShape)
+	return
+}
+
+// FindShapeByElementId finds the Shape that matches the id
+func (d *Definition) FindShapeByElementId(bpmnId string) (shape *Shape) {
+	d.BpmnIdShapeMap()
+	return d._BpmnIdShapeMap[bpmnId]
+}
+
+// ShapeOfBaseElement finds the Shape that matches the base element
+func (d *Definition) ShapeOfBaseElement(be BaseElement) (shape *Shape) {
+	d.BpmnIdShapeMap()
+	return d._BpmnIdShapeMap[be.GetId()]
+}
+
+// FindShapesByElementTypes finds all Shapes that have one of the specific Types
+// Interfaces are just pointers and types so no need for *
+func (d *Definition) FindShapesByElementTypes(types ...ElementType) (shapes []*Shape) {
+	// Create a function that checks the type and appends if found
+	var matchType = make(map[ElementType]bool, len(types))
+	for _, et := range types {
+		matchType[et] = true
+	}
+	d.BpmnIdBaseElementMap() // Create the map of elements
+	appendType := func(shape *Shape) {
+		if element := d._BaseElementMap[shape.BpmnElement]; element != nil {
+			if matchType[element.GetType()] {
+				shapes = append(shapes, shape)
+			}
+		}
+	}
+	d.ApplyFunctionToShapes(appendType)
+	return
+}
 
 func shapeWithinShape(s Shape, w Shape) bool {
 	return boundsWithinBounds(s.BpmnBounds, w.BpmnBounds)
