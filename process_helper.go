@@ -198,8 +198,12 @@ func (p *Process) TopologicalSortMap(includeLinks bool) map[string]*TopologyBase
 
 	// topologyBaseElements: elements with number of incoming sequence flows & number of processed incoming sequence flows
 	// If processed = total then this is next best step
+	var nextElement BaseElement
 	for k, be := range t.nodeMap {
 		t.topologyBaseElements[k] = &TopologyBaseElement{BaseElement: be}
+		if be.GetType() == B2StartEvent {
+			nextElement = be
+		}
 		//t.orderedList = append(t.orderedList, be)
 	}
 	for _, l := range t.linkMap {
@@ -239,7 +243,7 @@ func (p *Process) TopologicalSortMap(includeLinks bool) map[string]*TopologyBase
 	//	fmt.Println(k, len(v.incomingBaseElements), v.BaseElement.ToString())
 	//}
 
-	t.followPath("", "", 1, nil)
+	t.followPath("", "", 1, nextElement)
 	return t.topologyBaseElements
 
 }
