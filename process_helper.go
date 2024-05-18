@@ -142,10 +142,10 @@ func (p *Process) FindBaseElementById(id string) (baseElement BaseElement) {
 }
 
 type TopologyBaseElement struct {
-	BaseElement BaseElement `json:"base_element" :"baseElement"`
-	Step        string      `json:"step" :"step"`
-	SortStep    string      `json:"sort_step" :"sortStep"`
-	Level       int         `json:"level" :"level"`
+	BaseElement BaseElement `json:"base_element"`
+	Step        string      `json:"step"`
+	SortStep    string      `json:"sort_step"`
+	Level       int         `json:"level"`
 }
 
 func (p *Process) TopologicalSort(includeLinks bool) (tbe []*TopologyBaseElement) {
@@ -157,7 +157,11 @@ func (p *Process) TopologicalSort(includeLinks bool) (tbe []*TopologyBaseElement
 	for _, l := range p.FindLinks(B2Process) {
 		switch l.(type) {
 		case *SequenceFlow:
-			g.AddLink(l.GetName(), l.GetIncomingAssociations()[0], l.GetOutgoingAssociations()[0])
+			fromNode := nodeMap[l.GetIncomingAssociations()[0]]
+			toNode := nodeMap[l.GetOutgoingAssociations()[0]]
+			if fromNode != nil && toNode != nil {
+				_ = g.AddLink(l.GetName(), fromNode.GetId(), toNode.GetId())
+			}
 		}
 	}
 	sortedBPMN := g.SortedWithOrder()
