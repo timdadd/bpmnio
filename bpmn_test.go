@@ -83,26 +83,26 @@ func TestBPMNXML(t *testing.T) {
 		for _, p := range origD.Processes {
 			t.Logf("\nProcess FLow:%s", p.ToString())
 			//t.Logf("Sequence Flows:%v", p.SequenceFlows)
-			for _, be := range p.TopologicalSort(true) {
+			for _, tbe := range p.TopologicalSort(true) {
 				var rules []string
-				for _, r := range be.GetRules() {
+				for _, r := range tbe.BaseElement.GetRules() {
 					rules = append(rules, fmt.Sprintf("(%s) %s %s", r.Type, r.Name, r.Description))
 				}
-				if be.GetType() == B2SequenceFlow {
+				if tbe.BaseElement.GetType() == B2SequenceFlow {
 					t.Logf("  %s: %s: %s : %s : %s",
-						origD.GroupName(be),
-						be.GetType(),
-						be.GetName(),
+						origD.GroupName(tbe.BaseElement),
+						tbe.BaseElement.GetType(),
+						tbe.BaseElement.GetName(),
 						strings.Join(rules, ", "),
-						origD.ParentName(be))
+						origD.ParentName(tbe.BaseElement))
 				} else {
 					t.Logf("  %s: %s: %s : %s : %s: %v",
-						origD.GroupName(be),
-						be.GetType(),
-						be.GetName(),
+						origD.GroupName(tbe.BaseElement),
+						tbe.BaseElement.GetType(),
+						tbe.BaseElement.GetName(),
 						strings.Join(rules, ", "),
-						origD.Parent(be).GetId(),
-						origD.ShapeOfBaseElement(origD.Parent(be)).Id)
+						origD.Parent(tbe.BaseElement).GetId(),
+						origD.ShapeOfBaseElement(origD.Parent(tbe.BaseElement)).Id)
 				}
 			}
 		}
