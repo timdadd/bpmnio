@@ -151,14 +151,12 @@ type TopologyBaseElement struct {
 func (p *Process) TopologicalSort(includeLinks bool) (tbe []*TopologyBaseElement) {
 	g := depgraph.New()
 	nodeMap := p.FindNodes()
-	for bpmnID := range nodeMap {
-		g.AddNode(bpmnID)
-	}
 	for _, l := range p.FindLinks(B2Process) {
 		switch l.(type) {
 		case *SequenceFlow:
 			fromNode := nodeMap[l.GetIncomingAssociations()[0]]
 			toNode := nodeMap[l.GetOutgoingAssociations()[0]]
+			// Ignore sequence flows that don't have known nodes
 			if fromNode != nil && toNode != nil {
 				_ = g.AddLink(l.GetName(), fromNode.GetId(), toNode.GetId())
 			}
