@@ -85,7 +85,7 @@ func TestBPMNXML(t *testing.T) {
 			//t.Logf("Sequence Flows:%v", p.SequenceFlows)
 			for _, tbe := range p.TopologicalSort(true) {
 				var rules []string
-				for _, r := range tbe.BaseElement.GetRules() {
+				for _, r := range tbe.BaseElement.GetExtensionElement().GetRules() {
 					rules = append(rules, fmt.Sprintf("(%s) %s %s", r.Type, r.Name, r.Description))
 				}
 				if tbe.BaseElement.GetType() == B2SequenceFlow {
@@ -156,8 +156,8 @@ func compareBaseElements(t *testing.T, b1 BaseElement, b2 BaseElement) {
 	//}
 	//t.Logf("%s --> %s", b1.ToString(), ok)
 
-	for i, r1 := range b1.GetRules() {
-		r2 := b2.GetRules()[i]
+	for i, r1 := range b1.GetExtensionElement().GetRules() {
+		r2 := b2.GetExtensionElement().GetRules()[i]
 		assert.Equal(t, r1.Id, r2.Id)
 		assert.Equal(t, r1.Name, r2.Name)
 		assert.Equal(t, r1.Type, r2.Type)

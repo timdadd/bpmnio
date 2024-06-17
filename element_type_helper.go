@@ -2,6 +2,30 @@ package bpmnio
 
 import "strings"
 
+func ElementTypes() []ElementType {
+	return []ElementType{
+		B2Task,
+		B2ScriptTask,
+		B2ServiceTask,
+		B2ManualTask,
+		B2UserTask,
+		B2ReceiveTask,
+		B2SendTask,
+		B2BusinessRuleTask,
+		B2CallActivity,
+		B2StartEvent,
+		B2EndEvent,
+		B2EventBasedGateway,
+		B2ParallelGateway,
+		B2ExclusiveGateway,
+		B2IntermediateThrowEvent,
+		B2IntermediateCatchEvent,
+		B2SubProcess,
+		B2MessageFlow,
+		B2SequenceFlow,
+	}
+}
+
 func NodeElementTypes() []ElementType {
 	return []ElementType{
 		B2Task,
@@ -34,7 +58,6 @@ func LinkElementTypes(mode ElementType) []ElementType {
 			B2MessageFlow,
 			B2SequenceFlow,
 		}
-
 	}
 }
 

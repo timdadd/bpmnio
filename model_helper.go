@@ -97,8 +97,13 @@ func (d *Definition) BpmnIdBaseElementMap() map[string]BaseElement {
 
 // GetRules gets all rules in the definition
 func (d *Definition) GetRules() (rules []*Rule) {
+	rules = make([]*Rule, 0)
 	fAppendRules := func(element BaseElement) bool {
-		rules = append(rules, element.GetRules()...)
+		if extElm := element.GetExtensionElement(); extElm != nil {
+			if extElm.Rules != nil {
+				rules = append(rules, extElm.Rules.Rules...)
+			}
+		}
 		return true
 	}
 	d.ApplyFunctionToBaseElements(fAppendRules)
@@ -332,55 +337,77 @@ func (cls *ChildLaneSet) ApplyFunctionToBaseElements(f func(element BaseElement)
 
 // BpmnIdParentMap assigns the most appropriate parent to each element
 func (d *Definition) BpmnIdParentMap() map[string]BaseElement {
+	if len(d._BaseElementParent) == 0 {
+		d.buildParentChildrenMaps()
+	}
+	return d._BaseElementParent
+}
+
+func (d *Definition) buildParentChildrenMaps() {
 	if len(d._BaseElementParent) != 0 {
-		return d._BaseElementParent
+		return
 	}
 	d.BpmnIdBaseElementMap()
 	d._BaseElementParent = make(map[string]BaseElement, 20)
+	d._BaseElementChildren = make(map[string][]BaseElement, 20)
 	var currentParent BaseElement
 	fMap := func(be BaseElement) bool {
-		switch be.(type) {
+		// Most items are added by reference for instance partcipants add processes, lanes add elements
+		// However some things can only be determined walking the hiearchy, for instance process has lanes, lanes have lanes
+		switch be.(type) { // Here to handle any special scenarios
 		case *Process: // Process doesn't have a parent but is a parent
 			// Process can be a participant, if it is then the participant is the parent not the process
-			currentParent = d._BaseElementParent[be.GetId()]
+			currentParent = d._BaseElementParent[be.GetId()] // Participant exists?
 			if currentParent == nil {
 				currentParent = be
 			}
-		case *Participant: // Participant and parent can be the same thing
+		case *Participant: // Participant and process can be the same thing
 			// Participant isn't naturally a parent of anything
 			//if currentParent != nil {
 			//	d._BaseElementParent[be.GetId()] = currentParent
 			//}
-			currentParent = nil
 			if processRef := be.(*Participant).ProcessRef; processRef != "" {
-				d._BaseElementParent[processRef] = be
+				if processBE := d._BaseElementMap[processRef]; processBE != nil {
+					d._BaseElementParent[processRef] = be
+					//d._BaseElementChildren[be.GetId()] = append(d._BaseElementChildren[be.GetId()], processBE)
+				}
 			}
+			currentParent = nil // Participant is not a parent as processRef used
 		case *Lane: // Lanes have a parent but also tell us who their children are
-			if currentParent != nil {
-				d._BaseElementParent[be.GetId()] = currentParent
-			}
-			for _, fnr := range be.(*Lane).FlowNodeRefs {
-				d._BaseElementParent[fnr] = be // Belongs to this lane
-			}
-		case *SequenceFlow, *MessageFlow: // Flows don't have parents, only nodes
-		default: // Everything else just inherits from the parent if one is known
 			if currentParent != nil {
 				if id := be.GetId(); id > "" {
 					if _, inMap := d._BaseElementParent[id]; !inMap {
 						d._BaseElementParent[id] = currentParent
+						d._BaseElementChildren[currentParent.GetId()] = append(d._BaseElementChildren[currentParent.GetId()], be)
 					}
+				}
+			}
+			for _, fnr := range be.(*Lane).FlowNodeRefs {
+				if nodeBE := d._BaseElementMap[fnr]; nodeBE != nil {
+					d._BaseElementParent[fnr] = be
+					d._BaseElementChildren[be.GetId()] = append(d._BaseElementChildren[be.GetId()], nodeBE)
 				}
 			}
 		}
 		return true
 	}
 	d.ApplyFunctionToBaseElements(fMap)
-	return d._BaseElementParent
 }
 
 func (d *Definition) Parent(be BaseElement) BaseElement {
+	if be == nil {
+		return nil
+	}
 	//fmt.Println(id, len(d._BaseElementParent), d._BaseElementParent[id], d._BaseElementParent[id].GetName())
 	return d._BaseElementParent[be.GetId()]
+}
+
+func (d *Definition) Children(be BaseElement) []BaseElement {
+	//fmt.Println(id, len(d._BaseElementParent), d._BaseElementParent[id], d._BaseElementParent[id].GetName())
+	if be == nil {
+		return []BaseElement{}
+	}
+	return d._BaseElementChildren[be.GetId()]
 }
 
 func (d *Definition) ParentName(be BaseElement) string {
@@ -402,6 +429,6 @@ func NewDefinition(bpmnXML []byte) (d *Definition, err error) {
 	// Build the cache maps
 	d.BpmnIdBaseElementMap()
 	d.BpmnIdGroupMap()
-	d.BpmnIdParentMap()
+	d.buildParentChildrenMaps()
 	return
 }

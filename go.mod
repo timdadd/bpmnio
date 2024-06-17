@@ -1,10 +1,12 @@
-module github.com/timdadd/bpmnio
+module bpmnio
 
 go 1.22.2
 
+replace depgraph => ../depgraph
+
 require (
+	depgraph v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.9.0
-	github.com/timdadd/depgraph v0.0.5-0.20240520125114-fbfaf9ccc8bb
 )
 
 require (

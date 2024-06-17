@@ -5,24 +5,25 @@ import (
 )
 
 type Definition struct {
-	XMLName            xml.Name               `xml:"definitions"`
-	Id                 string                 `xml:"id,attr"`
-	Name               string                 `xml:"name,attr"`
-	TargetNamespace    string                 `xml:"targetNamespace,attr"`
-	ExpressionLanguage string                 `xml:"expressionLanguage,attr"`
-	TypeLanguage       string                 `xml:"typeLanguage,attr"`
-	Exporter           string                 `xml:"exporter,attr"`
-	ExporterVersion    string                 `xml:"exporterVersion,attr"`
-	Collaboration      *Collaboration         `xml:"collaboration"`
-	Category           *Category              `xml:"category"`
-	Processes          []*Process             `xml:"process"`
-	Messages           []*TMessage            `xml:"message"`
-	BpmnDiagram        []*Diagram             `xml:"BPMNDiagram"`
-	_BaseElementMap    map[string]BaseElement // [Id]BaseElement
-	_BpmnIdShapeMap    map[string]*Shape      // [bpmnID]Shape
-	_BaseElementGroup  map[string]*Group      // [bpmnID]Group
-	_BaseElementParent map[string]BaseElement // [Id]ParentElement (e.g. process, lane, sub-process)
-	_bpmnXML           string
+	XMLName              xml.Name                 `xml:"definitions"`
+	Id                   string                   `xml:"id,attr"`
+	Name                 string                   `xml:"name,attr"`
+	TargetNamespace      string                   `xml:"targetNamespace,attr"`
+	ExpressionLanguage   string                   `xml:"expressionLanguage,attr"`
+	TypeLanguage         string                   `xml:"typeLanguage,attr"`
+	Exporter             string                   `xml:"exporter,attr"`
+	ExporterVersion      string                   `xml:"exporterVersion,attr"`
+	Collaboration        *Collaboration           `xml:"collaboration"`
+	Category             *Category                `xml:"category"`
+	Processes            []*Process               `xml:"process"`
+	Messages             []*TMessage              `xml:"message"`
+	BpmnDiagram          []*Diagram               `xml:"BPMNDiagram"`
+	_BaseElementMap      map[string]BaseElement   // [Id]BaseElement
+	_BpmnIdShapeMap      map[string]*Shape        // [bpmnID]Shape
+	_BaseElementGroup    map[string]*Group        // [bpmnID]Group
+	_BaseElementParent   map[string]BaseElement   // [Id]ParentElement (e.g. process, lane, sub-process)
+	_BaseElementChildren map[string][]BaseElement // [Id]Children
+	_bpmnXML             string
 }
 
 type Diagram struct {
@@ -535,24 +536,26 @@ type TMessage struct {
 
 type TimeDuration struct {
 	XMLName xml.Name `xml:"timeDuration"`
-	XMLText string   `xml:",innerxml"`
+	XMLText string   `xml:"innerxml"`
 }
 
 type ExtensionElements struct {
-	XMLName xml.Name `xml:"extensionElements"`
-	Rules   *Rules   `xml:"rules"`
+	XMLName      xml.Name `xml:"extensionElements"`
+	DisplayOrder int      `xml:"displayOrder,attr"`
+	Rules        *Rules   `xml:"rules,omitempty"`
 }
 
 type Rules struct {
 	XMLName xml.Name `xml:"rules"`
-	Rules   []*Rule  `xml:"rule"`
+	Rules   []*Rule  `xml:"rule,omitempty"`
 }
 
 type Rule struct {
-	XMLName     xml.Name `xml:"rule"`
-	Id          string   `xml:"id,attr"`
-	Type        string   `xml:"type,attr"`
-	Code        string   `xml:"code,attr"`
-	Name        string   `xml:"name,attr"`
-	Description string   `xml:"description,attr"`
+	XMLName      xml.Name `xml:"rule"`
+	DisplayOrder int      `xml:"displayOrder,attr"`
+	Id           string   `xml:"id,attr"`
+	Type         string   `xml:"type,attr"`
+	Code         string   `xml:"code,attr"`
+	Name         string   `xml:"name,attr"`
+	Description  string   `xml:"description,attr"`
 }

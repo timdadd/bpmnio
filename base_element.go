@@ -5,42 +5,6 @@ import (
 	"fmt"
 )
 
-type ElementType string
-
-const (
-	B2Collaboration          ElementType = "COLLABORATION"
-	B2Participant            ElementType = "PARTICIPANT"
-	B2MessageFlow            ElementType = "MESSAGE_FLOW"
-	B2Group                  ElementType = "GROUP"
-	B2Category               ElementType = "CATEGORY"
-	B2CategoryValue          ElementType = "CATEGORY_VALUE"
-	B2LaneSet                ElementType = "LANE_SET"
-	B2Lane                   ElementType = "LANE"
-	B2ChildLaneSet           ElementType = "CHILD_LANE_SET"
-	B2StartEvent             ElementType = "START_EVENT"
-	B2EndEvent               ElementType = "END_EVENT"
-	B2Process                ElementType = "PROCESS"
-	B2SubProcess             ElementType = "SUB_PROCESS"
-	B2Task                   ElementType = "TASK"
-	B2ManualTask             ElementType = "MANUAL_TASK"
-	B2ScriptTask             ElementType = "SCRIPT_TASK"
-	B2UserTask               ElementType = "USER_TASK"
-	B2ReceiveTask            ElementType = "RECEIVE_TASK"
-	B2SendTask               ElementType = "SEND_TASK"
-	B2BusinessRuleTask       ElementType = "BUSINESS_RULE_TASK"
-	B2ServiceTask            ElementType = "SERVICE_TASK"
-	B2ParallelGateway        ElementType = "PARALLEL_GATEWAY"
-	B2ExclusiveGateway       ElementType = "EXCLUSIVE_GATEWAY"
-	B2DataObjectReference    ElementType = "DATA_OBJECT_REFERENCE"
-	B2DataObject             ElementType = "DATA_OBJECT"
-	B2DataStoreReference     ElementType = "DATA_STORE_REFERENCE"
-	B2IntermediateCatchEvent ElementType = "INTERMEDIATE_CATCH_EVENT"
-	B2IntermediateThrowEvent ElementType = "INTERMEDIATE_THROW_EVENT"
-	B2EventBasedGateway      ElementType = "EVENT_BASED_GATEWAY"
-	B2CallActivity           ElementType = "CALL_ACTIVITY"
-	B2SequenceFlow           ElementType = "SEQUENCE_FLOW"
-)
-
 // BaseElement does not follow the strict BPMN 2 definition of a base element as described by [omg]
 //
 // [omg]: https://www.omg.org/spec/BPMN/2.0.1/PDF
@@ -50,7 +14,7 @@ type BaseElement interface {
 	GetDocumentation() string
 	GetIncomingAssociations() []string
 	GetOutgoingAssociations() []string
-	GetRules() []*Rule
+	GetExtensionElement() *ExtensionElements
 	GetType() ElementType
 	GetXMLName() xml.Name
 	ToString() string
@@ -70,7 +34,7 @@ func (p *Process) GetIncomingAssociations() []string {
 func (p *Process) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (p *Process) GetRules() []*Rule { return GetRules(p.ExtensionElements) }
+func (p *Process) GetExtensionElement() *ExtensionElements { return p.ExtensionElements }
 func (p *Process) GetType() ElementType {
 	return B2Process
 }
@@ -94,7 +58,7 @@ func (ls *LaneSet) GetIncomingAssociations() []string {
 func (ls *LaneSet) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (ls *LaneSet) GetRules() []*Rule { return GetRules(ls.ExtensionElements) }
+func (ls *LaneSet) GetExtensionElement() *ExtensionElements { return ls.ExtensionElements }
 func (ls *LaneSet) GetType() ElementType {
 	return B2LaneSet
 }
@@ -118,7 +82,7 @@ func (l *Lane) GetIncomingAssociations() []string {
 func (l *Lane) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (l *Lane) GetRules() []*Rule { return GetRules(l.ExtensionElements) }
+func (l *Lane) GetExtensionElement() *ExtensionElements { return l.ExtensionElements }
 func (l *Lane) GetType() ElementType {
 	return B2Lane
 }
@@ -141,7 +105,7 @@ func (cls *ChildLaneSet) GetIncomingAssociations() []string {
 func (cls *ChildLaneSet) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (cls *ChildLaneSet) GetRules() []*Rule { return GetRules(cls.ExtensionElements) }
+func (cls *ChildLaneSet) GetExtensionElement() *ExtensionElements { return cls.ExtensionElements }
 func (cls *ChildLaneSet) GetType() ElementType {
 	return B2ChildLaneSet
 }
@@ -165,8 +129,8 @@ func (cn *Collaboration) GetIncomingAssociations() []string {
 func (cn *Collaboration) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (cn *Collaboration) GetRules() []*Rule {
-	return GetRules(cn.ExtensionElements)
+func (cn *Collaboration) GetExtensionElement() *ExtensionElements {
+	return cn.ExtensionElements
 }
 func (cn *Collaboration) GetType() ElementType {
 	return B2Collaboration
@@ -176,7 +140,7 @@ func (cn *Collaboration) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)", B2Collaboration, cn.Id, cn.Name)
 }
 
-// ***  Participant methods ***
+// *** Participant methods ***
 func (p *Participant) GetId() string {
 	return p.Id
 }
@@ -190,8 +154,8 @@ func (p *Participant) GetIncomingAssociations() []string {
 func (p *Participant) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (p *Participant) GetRules() []*Rule {
-	return GetRules(p.ExtensionElements)
+func (p *Participant) GetExtensionElement() *ExtensionElements {
+	return p.ExtensionElements
 }
 func (p *Participant) GetType() ElementType {
 	return B2Participant
@@ -215,8 +179,8 @@ func (mf *MessageFlow) GetIncomingAssociations() []string {
 func (mf *MessageFlow) GetOutgoingAssociations() []string {
 	return []string{mf.TargetRef}
 }
-func (mf *MessageFlow) GetRules() []*Rule {
-	return GetRules(mf.ExtensionElements)
+func (mf *MessageFlow) GetExtensionElement() *ExtensionElements {
+	return mf.ExtensionElements
 }
 func (mf *MessageFlow) GetType() ElementType {
 	return B2MessageFlow
@@ -240,8 +204,8 @@ func (sf *SequenceFlow) GetIncomingAssociations() []string {
 func (sf *SequenceFlow) GetOutgoingAssociations() []string {
 	return []string{sf.TargetRef}
 }
-func (sf *SequenceFlow) GetRules() []*Rule {
-	return GetRules(sf.ExtensionElements)
+func (sf *SequenceFlow) GetExtensionElement() *ExtensionElements {
+	return sf.ExtensionElements
 }
 func (sf *SequenceFlow) GetType() ElementType {
 	return B2SequenceFlow
@@ -265,8 +229,8 @@ func (g *Group) GetIncomingAssociations() []string {
 func (g *Group) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (g *Group) GetRules() []*Rule {
-	return GetRules(g.ExtensionElements)
+func (g *Group) GetExtensionElement() *ExtensionElements {
+	return g.ExtensionElements
 }
 func (g *Group) GetType() ElementType {
 	return B2Group
@@ -290,8 +254,8 @@ func (c *Category) GetIncomingAssociations() []string {
 func (c *Category) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (c *Category) GetRules() []*Rule {
-	return GetRules(c.ExtensionElements)
+func (c *Category) GetExtensionElement() *ExtensionElements {
+	return c.ExtensionElements
 }
 func (c *Category) GetType() ElementType {
 	return B2Category
@@ -315,8 +279,8 @@ func (cv *CategoryValue) GetIncomingAssociations() []string {
 func (cv *CategoryValue) GetOutgoingAssociations() []string {
 	return []string{}
 }
-func (cv *CategoryValue) GetRules() []*Rule {
-	return GetRules(cv.ExtensionElements)
+func (cv *CategoryValue) GetExtensionElement() *ExtensionElements {
+	return cv.ExtensionElements
 }
 func (cv *CategoryValue) GetType() ElementType {
 	return B2CategoryValue
@@ -340,7 +304,7 @@ func (se *StartEvent) GetIncomingAssociations() []string {
 func (se *StartEvent) GetOutgoingAssociations() []string {
 	return se.OutgoingAssociations
 }
-func (se *StartEvent) GetRules() []*Rule { return GetRules(se.ExtensionElements) }
+func (se *StartEvent) GetExtensionElement() *ExtensionElements { return se.ExtensionElements }
 func (se *StartEvent) GetType() ElementType {
 	return B2StartEvent
 }
@@ -364,7 +328,7 @@ func (ee *EndEvent) GetIncomingAssociations() []string {
 func (ee *EndEvent) GetOutgoingAssociations() []string {
 	return ee.OutgoingAssociations
 }
-func (ee *EndEvent) GetRules() []*Rule { return GetRules(ee.ExtensionElements) }
+func (ee *EndEvent) GetExtensionElement() *ExtensionElements { return ee.ExtensionElements }
 func (ee *EndEvent) GetType() ElementType {
 	return B2EndEvent
 }
@@ -388,7 +352,7 @@ func (t *Task) GetIncomingAssociations() []string {
 func (t *Task) GetOutgoingAssociations() []string {
 	return t.OutgoingAssociations
 }
-func (t *Task) GetRules() []*Rule { return GetRules(t.ExtensionElements) }
+func (t *Task) GetExtensionElement() *ExtensionElements { return t.ExtensionElements }
 func (t *Task) GetType() ElementType {
 	return B2Task
 }
@@ -412,7 +376,7 @@ func (mt *ManualTask) GetIncomingAssociations() []string {
 func (mt *ManualTask) GetOutgoingAssociations() []string {
 	return mt.OutgoingAssociations
 }
-func (mt *ManualTask) GetRules() []*Rule { return GetRules(mt.ExtensionElements) }
+func (mt *ManualTask) GetExtensionElement() *ExtensionElements { return mt.ExtensionElements }
 func (mt *ManualTask) GetType() ElementType {
 	return B2ManualTask
 }
@@ -436,7 +400,7 @@ func (sct *ScriptTask) GetIncomingAssociations() []string {
 func (sct *ScriptTask) GetOutgoingAssociations() []string {
 	return sct.OutgoingAssociations
 }
-func (sct *ScriptTask) GetRules() []*Rule { return GetRules(sct.ExtensionElements) }
+func (sct *ScriptTask) GetExtensionElement() *ExtensionElements { return sct.ExtensionElements }
 func (sct *ScriptTask) GetType() ElementType {
 	return B2ScriptTask
 }
@@ -460,7 +424,7 @@ func (ut *UserTask) GetIncomingAssociations() []string {
 func (ut *UserTask) GetOutgoingAssociations() []string {
 	return ut.OutgoingAssociations
 }
-func (ut *UserTask) GetRules() []*Rule { return GetRules(ut.ExtensionElements) }
+func (ut *UserTask) GetExtensionElement() *ExtensionElements { return ut.ExtensionElements }
 func (ut *UserTask) GetType() ElementType {
 	return B2UserTask
 }
@@ -484,7 +448,7 @@ func (svt *ServiceTask) GetIncomingAssociations() []string {
 func (svt *ServiceTask) GetOutgoingAssociations() []string {
 	return svt.OutgoingAssociations
 }
-func (svt *ServiceTask) GetRules() []*Rule { return GetRules(svt.ExtensionElements) }
+func (svt *ServiceTask) GetExtensionElement() *ExtensionElements { return svt.ExtensionElements }
 func (svt *ServiceTask) GetType() ElementType {
 	return B2ServiceTask
 }
@@ -508,7 +472,7 @@ func (brt *BusinessRuleTask) GetIncomingAssociations() []string {
 func (brt *BusinessRuleTask) GetOutgoingAssociations() []string {
 	return brt.OutgoingAssociations
 }
-func (brt *BusinessRuleTask) GetRules() []*Rule { return GetRules(brt.ExtensionElements) }
+func (brt *BusinessRuleTask) GetExtensionElement() *ExtensionElements { return brt.ExtensionElements }
 func (brt *BusinessRuleTask) GetType() ElementType {
 	return B2BusinessRuleTask
 }
@@ -519,51 +483,51 @@ func (brt *BusinessRuleTask) ToString() string {
 }
 
 // *** ReceiveTask methods ***
-func (brt *ReceiveTask) GetId() string {
-	return brt.Id
+func (rt *ReceiveTask) GetId() string {
+	return rt.Id
 }
-func (brt *ReceiveTask) GetName() string {
-	return brt.Name
+func (rt *ReceiveTask) GetName() string {
+	return rt.Name
 }
-func (brt *ReceiveTask) GetDocumentation() string { return brt.Documentation }
-func (brt *ReceiveTask) GetIncomingAssociations() []string {
-	return brt.IncomingAssociations
+func (rt *ReceiveTask) GetDocumentation() string { return rt.Documentation }
+func (rt *ReceiveTask) GetIncomingAssociations() []string {
+	return rt.IncomingAssociations
 }
-func (brt *ReceiveTask) GetOutgoingAssociations() []string {
-	return brt.OutgoingAssociations
+func (rt *ReceiveTask) GetOutgoingAssociations() []string {
+	return rt.OutgoingAssociations
 }
-func (brt *ReceiveTask) GetRules() []*Rule { return GetRules(brt.ExtensionElements) }
-func (brt *ReceiveTask) GetType() ElementType {
+func (rt *ReceiveTask) GetExtensionElement() *ExtensionElements { return rt.ExtensionElements }
+func (rt *ReceiveTask) GetType() ElementType {
 	return B2ReceiveTask
 }
-func (brt *ReceiveTask) GetXMLName() xml.Name { return brt.XMLName }
-func (brt *ReceiveTask) ToString() string {
+func (rt *ReceiveTask) GetXMLName() xml.Name { return rt.XMLName }
+func (rt *ReceiveTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
-		B2ReceiveTask, brt.Id, brt.Name, len(brt.IncomingAssociations), len(brt.OutgoingAssociations))
+		B2ReceiveTask, rt.Id, rt.Name, len(rt.IncomingAssociations), len(rt.OutgoingAssociations))
 }
 
 // *** SendTask methods ***
-func (brt *SendTask) GetId() string {
-	return brt.Id
+func (st *SendTask) GetId() string {
+	return st.Id
 }
-func (brt *SendTask) GetName() string {
-	return brt.Name
+func (st *SendTask) GetName() string {
+	return st.Name
 }
-func (brt *SendTask) GetDocumentation() string { return brt.Documentation }
-func (brt *SendTask) GetIncomingAssociations() []string {
-	return brt.IncomingAssociations
+func (st *SendTask) GetDocumentation() string { return st.Documentation }
+func (st *SendTask) GetIncomingAssociations() []string {
+	return st.IncomingAssociations
 }
-func (brt *SendTask) GetOutgoingAssociations() []string {
-	return brt.OutgoingAssociations
+func (st *SendTask) GetOutgoingAssociations() []string {
+	return st.OutgoingAssociations
 }
-func (brt *SendTask) GetRules() []*Rule { return GetRules(brt.ExtensionElements) }
-func (brt *SendTask) GetType() ElementType {
+func (st *SendTask) GetExtensionElement() *ExtensionElements { return st.ExtensionElements }
+func (st *SendTask) GetType() ElementType {
 	return B2SendTask
 }
-func (brt *SendTask) GetXMLName() xml.Name { return brt.XMLName }
-func (brt *SendTask) ToString() string {
+func (st *SendTask) GetXMLName() xml.Name { return st.XMLName }
+func (st *SendTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
-		B2SendTask, brt.Id, brt.Name, len(brt.IncomingAssociations), len(brt.OutgoingAssociations))
+		B2SendTask, st.Id, st.Name, len(st.IncomingAssociations), len(st.OutgoingAssociations))
 }
 
 // *** CallActivity methods ***
@@ -580,8 +544,8 @@ func (ca *CallActivity) GetIncomingAssociations() []string {
 func (ca *CallActivity) GetOutgoingAssociations() []string {
 	return ca.OutgoingAssociations
 }
-func (ca *CallActivity) GetRules() []*Rule {
-	return GetRules(ca.ExtensionElements)
+func (ca *CallActivity) GetExtensionElement() *ExtensionElements {
+	return ca.ExtensionElements
 }
 func (ca *CallActivity) GetType() ElementType {
 	return B2CallActivity
@@ -606,7 +570,7 @@ func (sp *SubProcess) GetIncomingAssociations() []string {
 func (sp *SubProcess) GetOutgoingAssociations() []string {
 	return sp.OutgoingAssociations
 }
-func (sp *SubProcess) GetRules() []*Rule { return GetRules(sp.ExtensionElements) }
+func (sp *SubProcess) GetExtensionElement() *ExtensionElements { return sp.ExtensionElements }
 func (sp *SubProcess) GetType() ElementType {
 	return B2SubProcess
 }
@@ -629,8 +593,8 @@ func (pg *ParallelGateway) GetIncomingAssociations() []string {
 func (pg *ParallelGateway) GetOutgoingAssociations() []string {
 	return pg.OutgoingAssociations
 }
-func (pg *ParallelGateway) GetRules() []*Rule {
-	return GetRules(pg.ExtensionElements)
+func (pg *ParallelGateway) GetExtensionElement() *ExtensionElements {
+	return pg.ExtensionElements
 }
 func (pg *ParallelGateway) GetType() ElementType {
 	return B2ParallelGateway
@@ -654,8 +618,8 @@ func (eg *ExclusiveGateway) GetIncomingAssociations() []string {
 func (eg *ExclusiveGateway) GetOutgoingAssociations() []string {
 	return eg.OutgoingAssociations
 }
-func (eg *ExclusiveGateway) GetRules() []*Rule {
-	return GetRules(eg.ExtensionElements)
+func (eg *ExclusiveGateway) GetExtensionElement() *ExtensionElements {
+	return eg.ExtensionElements
 }
 func (eg *ExclusiveGateway) GetType() ElementType {
 	return B2ExclusiveGateway
@@ -679,8 +643,8 @@ func (dor *DataObjectReference) GetIncomingAssociations() []string {
 func (dor *DataObjectReference) GetOutgoingAssociations() []string {
 	return dor.OutgoingAssociations
 }
-func (dor *DataObjectReference) GetRules() []*Rule {
-	return GetRules(dor.ExtensionElements)
+func (dor *DataObjectReference) GetExtensionElement() *ExtensionElements {
+	return dor.ExtensionElements
 }
 func (dor *DataObjectReference) GetType() ElementType {
 	return B2DataObjectReference
@@ -706,8 +670,8 @@ func (do *DataObject) GetIncomingAssociations() []string {
 func (do *DataObject) GetOutgoingAssociations() []string {
 	return do.OutgoingAssociations
 }
-func (do *DataObject) GetRules() []*Rule {
-	return GetRules(do.ExtensionElements)
+func (do *DataObject) GetExtensionElement() *ExtensionElements {
+	return do.ExtensionElements
 }
 func (do *DataObject) GetType() ElementType {
 	return B2DataObject
@@ -733,8 +697,8 @@ func (dsr *DataStoreReference) GetIncomingAssociations() []string {
 func (dsr *DataStoreReference) GetOutgoingAssociations() []string {
 	return dsr.OutgoingAssociations
 }
-func (dsr *DataStoreReference) GetRules() []*Rule {
-	return GetRules(dsr.ExtensionElements)
+func (dsr *DataStoreReference) GetExtensionElement() *ExtensionElements {
+	return dsr.ExtensionElements
 }
 func (dsr *DataStoreReference) GetType() ElementType {
 	return B2DataStoreReference
@@ -760,8 +724,8 @@ func (ite *IntermediateThrowEvent) GetIncomingAssociations() []string {
 func (ite *IntermediateThrowEvent) GetOutgoingAssociations() []string {
 	return ite.OutgoingAssociations
 }
-func (ite *IntermediateThrowEvent) GetRules() []*Rule {
-	return GetRules(ite.ExtensionElements)
+func (ite *IntermediateThrowEvent) GetExtensionElement() *ExtensionElements {
+	return ite.ExtensionElements
 }
 func (ite *IntermediateThrowEvent) GetType() ElementType {
 	return B2IntermediateThrowEvent
@@ -787,8 +751,8 @@ func (ice *IntermediateCatchEvent) GetIncomingAssociations() []string {
 func (ice *IntermediateCatchEvent) GetOutgoingAssociations() []string {
 	return ice.OutgoingAssociations
 }
-func (ice *IntermediateCatchEvent) GetRules() []*Rule {
-	return GetRules(ice.ExtensionElements)
+func (ice *IntermediateCatchEvent) GetExtensionElement() *ExtensionElements {
+	return ice.ExtensionElements
 }
 func (ice *IntermediateCatchEvent) GetType() ElementType {
 	return B2IntermediateCatchEvent
@@ -814,8 +778,8 @@ func (ebg *EventBasedGateway) GetIncomingAssociations() []string {
 func (ebg *EventBasedGateway) GetOutgoingAssociations() []string {
 	return ebg.OutgoingAssociations
 }
-func (ebg *EventBasedGateway) GetRules() []*Rule {
-	return GetRules(ebg.ExtensionElements)
+func (ebg *EventBasedGateway) GetExtensionElement() *ExtensionElements {
+	return ebg.ExtensionElements
 }
 func (ebg *EventBasedGateway) GetType() ElementType {
 	return B2EventBasedGateway
@@ -824,12 +788,4 @@ func (ebg *EventBasedGateway) GetXMLName() xml.Name { return ebg.XMLName }
 func (ebg *EventBasedGateway) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2EventBasedGateway, ebg.Id, ebg.Name, len(ebg.IncomingAssociations), len(ebg.OutgoingAssociations))
-}
-
-// GetRules avoids any null errors
-func GetRules(extensionElements *ExtensionElements) []*Rule {
-	if extensionElements != nil && extensionElements.Rules != nil {
-		return extensionElements.Rules.Rules
-	}
-	return nil
 }
