@@ -148,6 +148,9 @@ type TopologyBaseElement struct {
 	Level       int         `json:"level"`
 }
 
+// TopologicalSort sorts the BPMN diagram so the details can be presented in a table in a logical order
+// Future capability will be to use for sequence diagram generation
+// includeLinks is a future capability, currently sorts the activities of the BPMN model
 func (p *Process) TopologicalSort(includeLinks bool) (tbe []*TopologyBaseElement) {
 	g := depgraph.New()
 	nodeMap := p.FindNodes()
@@ -162,7 +165,7 @@ func (p *Process) TopologicalSort(includeLinks bool) (tbe []*TopologyBaseElement
 			}
 		}
 	}
-	sortedBPMN := g.SortedWithOrder()
+	sortedBPMN := g.TopologicalSort()
 	tbe = make([]*TopologyBaseElement, len(sortedBPMN))
 	for i, s := range sortedBPMN {
 		tbe[i] = &TopologyBaseElement{
