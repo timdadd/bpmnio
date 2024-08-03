@@ -83,7 +83,7 @@ func TestBPMNXML(t *testing.T) {
 		for _, p := range origD.Processes {
 			t.Logf("\nProcess FLow:%s", p.ToString())
 			//t.Logf("Sequence Flows:%v", p.SequenceFlows)
-			for _, tbe := range p.TopologicalSort(true) {
+			for _, tbe := range p.TopologicalSort() {
 				var rules []string
 				for _, r := range tbe.BaseElement.GetExtensionElement().GetRules() {
 					rules = append(rules, fmt.Sprintf("(%s) %s %s", r.Type, r.Name, r.Description))

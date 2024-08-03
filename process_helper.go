@@ -68,7 +68,9 @@ func (p *Process) FindLinks(et ElementType) map[string]BaseElement {
 	return p.MapBEs(linkTypeMap)
 }
 
-// MapBEs takes a map of ElementTypes and builds a list of BaseElement that match the map
+// MapBEs takes a map of ElementTypes and builds a map of BaseElement
+//
+// The decision to go down the hierarchy is based upon the map bool
 func (p *Process) MapBEs(etMap map[ElementType]bool) (m map[string]BaseElement) {
 	m = make(map[string]BaseElement, 20)
 	fMap := func(be BaseElement) bool {
@@ -142,26 +144,28 @@ func (p *Process) FindBaseElementById(id string) (baseElement BaseElement) {
 }
 
 type TopologyBaseElement struct {
-	BaseElement BaseElement `json:"base_element"`
-	Step        string      `json:"step"`
-	SortStep    string      `json:"sort_step"`
-	Level       int         `json:"level"`
+	BaseElement     BaseElement `json:"base_element"`
+	FromBaseElement BaseElement `json:"from_base_element"`
+	Step            string      `json:"step"`
+	SortStep        string      `json:"sort_step"`
+	Level           int         `json:"level"`
 }
 
 // TopologicalSort sorts the BPMN diagram so the details can be presented in a table in a logical order
 // Future capability will be to use for sequence diagram generation
 // includeLinks is a future capability, currently sorts the activities of the BPMN model
-func (p *Process) TopologicalSort(includeLinks bool) (tbe []*TopologyBaseElement) {
+func (p *Process) TopologicalSort() (tbe []*TopologyBaseElement) {
 	g := depgraph.New()
 	nodeMap := p.FindNodes()
-	for _, l := range p.FindLinks(B2Process) {
+	linkMap := p.FindLinks(B2Process)
+	for bpmnID, l := range linkMap {
 		switch l.(type) {
 		case *SequenceFlow:
 			fromNode := nodeMap[l.GetIncomingAssociations()[0]]
 			toNode := nodeMap[l.GetOutgoingAssociations()[0]]
 			// Ignore sequence flows that don't have known nodes
 			if fromNode != nil && toNode != nil {
-				_ = g.AddLink(l.GetName(), fromNode.GetId(), toNode.GetId())
+				_ = g.AddLink(bpmnID, fromNode.GetId(), toNode.GetId())
 			}
 		}
 	}
@@ -169,10 +173,11 @@ func (p *Process) TopologicalSort(includeLinks bool) (tbe []*TopologyBaseElement
 	tbe = make([]*TopologyBaseElement, len(sortedBPMN))
 	for i, s := range sortedBPMN {
 		tbe[i] = &TopologyBaseElement{
-			BaseElement: nodeMap[s.Node.(string)],
-			Step:        s.Step,
-			SortStep:    s.SortedStep,
-			Level:       s.Level,
+			BaseElement:     nodeMap[s.Node.(string)],
+			FromBaseElement: linkMap[s.FromLinkID],
+			Step:            s.Step,
+			SortStep:        s.SortedStep,
+			Level:           s.Level,
 		}
 	}
 	return
