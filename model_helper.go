@@ -135,7 +135,7 @@ func (cn *Collaboration) ApplyFunctionToBaseElements(f func(element BaseElement)
 	if cn == nil {
 		return
 	}
-	if f(cn) {
+	if x := f(cn); x {
 		for _, participant := range cn.Participants {
 			f(participant)
 		}
@@ -153,7 +153,9 @@ func (p *Process) ApplyFunctionToBaseElements(f func(element BaseElement) bool) 
 	if p == nil {
 		return //Nothing to see here
 	}
-	if f(p) { // Apply to process and then items within process
+	// if f(p) was not working, even if f(p) returned true the if was treating as false
+	// Fails when called remotely from getProcessItems
+	if x := f(p); x { // Apply to process and then items within process
 		for _, group := range p.Groups {
 			f(group)
 		}
@@ -228,7 +230,7 @@ func (sp *SubProcess) ApplyFunctionToBaseElements(f func(element BaseElement) bo
 	if sp == nil {
 		return // Nothing to see here
 	}
-	if f(sp) {
+	if x := f(sp); x {
 		for _, subProcess := range sp.SubProcesses {
 			subProcess.ApplyFunctionToBaseElements(f)
 		}
@@ -300,7 +302,7 @@ func (c *Category) ApplyFunctionToBaseElements(f func(element BaseElement) bool)
 	if c == nil {
 		return // Nothing to see here
 	}
-	if f(c) {
+	if x := f(c); x {
 		for _, categoryValue := range c.CategoryValues {
 			f(categoryValue)
 		}
@@ -313,7 +315,7 @@ func (ls *LaneSet) ApplyFunctionToBaseElements(f func(element BaseElement) bool)
 		return // Nothing to see here
 	}
 
-	if f(ls) {
+	if x := f(ls); x {
 		for _, lane := range ls.Lanes {
 			f(lane)
 			lane.ChildLaneSet.ApplyFunctionToBaseElements(f)
@@ -327,7 +329,7 @@ func (cls *ChildLaneSet) ApplyFunctionToBaseElements(f func(element BaseElement)
 		return // Nothing to see here
 	}
 
-	if f(cls) {
+	if x := f(cls); x {
 		for _, lane := range cls.Lanes {
 			f(lane)
 			lane.ChildLaneSet.ApplyFunctionToBaseElements(f)

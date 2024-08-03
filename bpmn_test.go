@@ -82,6 +82,12 @@ func TestBPMNXML(t *testing.T) {
 		// Process Flow Hierarchy
 		for _, p := range origD.Processes {
 			t.Logf("\nProcess FLow:%s", p.ToString())
+			if p.Name == "CelcomDigi" {
+				for _, id := range []string{"Activity_1qvc83h", "Event_1fdhkgw", "Lane_18l2dnr",
+					"Id_8235bf52-0e42-4df2-903f-6a34f380d702"} {
+					assert.Equal(t, id, p.FindBaseElementById(id).GetId(), "FindBaseElementById")
+				}
+			}
 			//t.Logf("Sequence Flows:%v", p.SequenceFlows)
 			for _, tbe := range p.TopologicalSort() {
 				var rules []string
@@ -89,17 +95,19 @@ func TestBPMNXML(t *testing.T) {
 					rules = append(rules, fmt.Sprintf("(%s) %s %s", r.Type, r.Name, r.Description))
 				}
 				if tbe.BaseElement.GetType() == B2SequenceFlow {
-					t.Logf("  %s: %s: %s : %s : %s",
+					t.Logf("  %s: %s: %s (%s) : %s : %s",
 						origD.GroupName(tbe.BaseElement),
 						tbe.BaseElement.GetType(),
 						tbe.BaseElement.GetName(),
+						tbe.BaseElement.GetId(),
 						strings.Join(rules, ", "),
 						origD.ParentName(tbe.BaseElement))
 				} else {
-					t.Logf("  %s: %s: %s : %s : %s: %v",
+					t.Logf("  %s: %s: %s (%s)  : %s : %s: %v",
 						origD.GroupName(tbe.BaseElement),
 						tbe.BaseElement.GetType(),
 						tbe.BaseElement.GetName(),
+						tbe.BaseElement.GetId(),
 						strings.Join(rules, ", "),
 						origD.Parent(tbe.BaseElement).GetId(),
 						origD.ShapeOfBaseElement(origD.Parent(tbe.BaseElement)).Id)

@@ -137,7 +137,7 @@ func (p *Process) FindBaseElementById(id string) (baseElement BaseElement) {
 		if be.GetId() == id {
 			baseElement = be
 		}
-		return baseElement != nil
+		return baseElement == nil // Still need to keep searching
 	}
 	p.ApplyFunctionToBaseElements(fFindElementById)
 	return
