@@ -3,7 +3,7 @@ module github.com/timdadd/bpmnio
 go 1.22
 
 require (
-	github.com/timdadd/depgraph latest
+	github.com/timdadd/depgraph v1.2.0
 	github.com/stretchr/testify v1.9.0
 )
 
