@@ -345,55 +345,85 @@ func (d *Definition) BpmnIdParentMap() map[string]BaseElement {
 	return d._BaseElementParent
 }
 
+// buildParentChildrenMaps uses the hierarchy of going through processes to build the
+// parent/child relationships, but it might be easier just to write a single routine
+// The only elements of interest are processes / participants (participants over processes)
+// Lanes and sub-lanes and flowRefs of final lanes
+// The only thing is that if an element isn't in a lane then no FlowRef so the hierarchy has to be used
 func (d *Definition) buildParentChildrenMaps() {
 	if len(d._BaseElementParent) != 0 {
 		return
 	}
 	d.BpmnIdBaseElementMap()
-	d._BaseElementParent = make(map[string]BaseElement, 20)
+	d._BaseElementParent = make(map[string]BaseElement, len(d._BaseElementMap))
 	d._BaseElementChildren = make(map[string][]BaseElement, 20)
 	var currentParent BaseElement
 	fMap := func(be BaseElement) bool {
 		// Most items are added by reference for instance partcipants add processes, lanes add elements
 		// However some things can only be determined walking the hiearchy, for instance process has lanes, lanes have lanes
 		switch be.(type) { // Here to handle any special scenarios
+		case *Collaboration, *SequenceFlow, *MessageFlow, *Group, *Category, *CategoryValue, *LaneSet, *ChildLaneSet: // Things that aren't part of the hierarchy
 		case *Process: // Process doesn't have a parent but is a parent
 			// Process can be a participant, if it is then the participant is the parent not the process
-			currentParent = d._BaseElementParent[be.GetId()] // Participant exists?
-			if currentParent == nil {
+			currentParent = d._BaseElementParent[be.GetId()]
+			if currentParent == nil { // Project is not a participant
 				currentParent = be
+			} else {
+				delete(d._BaseElementParent, be.GetId())
 			}
-		case *Participant: // Participant and process can be the same thing
+		case *Participant: // Participant and Process can be the same thing
 			// Participant isn't naturally a parent of anything
 			//if currentParent != nil {
 			//	d._BaseElementParent[be.GetId()] = currentParent
 			//}
+			currentParent = nil
 			if processRef := be.(*Participant).ProcessRef; processRef != "" {
-				if processBE := d._BaseElementMap[processRef]; processBE != nil {
-					d._BaseElementParent[processRef] = be
-					//d._BaseElementChildren[be.GetId()] = append(d._BaseElementChildren[be.GetId()], processBE)
-				}
+				currentParent = be
+				d._BaseElementParent[processRef] = be // Use this later
 			}
-			currentParent = nil // Participant is not a parent as processRef used
 		case *Lane: // Lanes have a parent but also tell us who their children are
+			if d._BaseElementParent[be.GetId()] == nil {
+				d.setLaneHiearchy(be.(*Lane), currentParent)
+			}
+		default: // Everything else just inherits from the parent if one is known
+			// This is here to pick up any stragglers, can't think what they are
 			if currentParent != nil {
 				if id := be.GetId(); id > "" {
 					if _, inMap := d._BaseElementParent[id]; !inMap {
 						d._BaseElementParent[id] = currentParent
-						d._BaseElementChildren[currentParent.GetId()] = append(d._BaseElementChildren[currentParent.GetId()], be)
 					}
-				}
-			}
-			for _, fnr := range be.(*Lane).FlowNodeRefs {
-				if nodeBE := d._BaseElementMap[fnr]; nodeBE != nil {
-					d._BaseElementParent[fnr] = be
-					d._BaseElementChildren[be.GetId()] = append(d._BaseElementChildren[be.GetId()], nodeBE)
 				}
 			}
 		}
 		return true
 	}
 	d.ApplyFunctionToBaseElements(fMap)
+	// Now build the child map from the parent map
+	// We have to do this at the end as FlowNodeRefs are overwritten so the final parent/child relationship
+	// isn't known until the end
+	for c, p := range d._BaseElementParent {
+		d._BaseElementChildren[p.GetId()] = append(d._BaseElementChildren[p.GetId()], d._BaseElementMap[c])
+	}
+}
+
+func (d *Definition) setLaneHiearchy(l *Lane, parent BaseElement) {
+	if l == nil {
+		return
+	}
+	if parent != nil {
+		d._BaseElementParent[l.Id] = parent
+	}
+	// We have to overwrite as parent lanes know all their children
+	// so initially the parent is actually a grandparent
+	for _, fnr := range l.FlowNodeRefs {
+		d._BaseElementParent[fnr] = l // Belongs to this lane
+	}
+	// If this lane has a child lane set then set those lanes to the right parent as well
+	if laneSet := l.ChildLaneSet; laneSet != nil {
+		for _, lane := range laneSet.Lanes {
+			d.setLaneHiearchy(lane, l)
+		}
+	}
 }
 
 func (d *Definition) Parent(be BaseElement) BaseElement {
