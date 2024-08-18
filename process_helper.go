@@ -1,8 +1,8 @@
 package bpmnio
 
 import (
+	"depgraph"
 	"fmt"
-	"github.com/timdadd/depgraph"
 )
 
 // FindSequenceFlows finds all the sequence flows in the process and sub processes of the process
@@ -182,3 +182,34 @@ func (p *Process) TopologicalSort() (tbe []*TopologyBaseElement) {
 	}
 	return
 }
+
+//// AllPaths returns all the alternate routes of a process
+//func (p *Process) AllPaths() (tbes [][]*TopologyBaseElement) {
+//	g := depgraph.New()
+//	nodeMap := p.FindNodes()
+//	linkMap := p.FindLinks(B2Process)
+//	for bpmnID, l := range linkMap {
+//		switch l.(type) {
+//		case *SequenceFlow:
+//			fromNode := nodeMap[l.GetIncomingAssociations()[0]]
+//			toNode := nodeMap[l.GetOutgoingAssociations()[0]]
+//			// Ignore sequence flows that don't have known nodes
+//			if fromNode != nil && toNode != nil {
+//				_ = g.AddLink(bpmnID, fromNode.GetId(), toNode.GetId())
+//			}
+//		}
+//	}
+//	// Now add the decision points
+//	sortedBPMN := g.TopologicalSort()
+//	tbe = make([]*TopologyBaseElement, len(sortedBPMN))
+//	for i, s := range sortedBPMN {
+//		tbe[i] = &TopologyBaseElement{
+//			BaseElement:     nodeMap[s.Node.(string)],
+//			FromBaseElement: linkMap[s.FromLinkID],
+//			Step:            s.Step,
+//			SortStep:        s.SortedStep,
+//			Level:           s.Level,
+//		}
+//	}
+//	return
+//}

@@ -18,6 +18,7 @@ type BaseElement interface {
 	GetType() ElementType
 	GetXMLName() xml.Name
 	ToString() string
+	IsGateway() bool
 }
 
 // *** process methods ***
@@ -43,6 +44,7 @@ func (p *Process) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)",
 		B2Process, p.Id, p.Name)
 }
+func (p *Process) IsGateway() bool { return false }
 
 // *** LaneSet methods ***
 func (ls *LaneSet) GetId() string {
@@ -67,6 +69,7 @@ func (ls *LaneSet) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)",
 		B2LaneSet, ls.Id, ls.Name)
 }
+func (ls *LaneSet) IsGateway() bool { return false }
 
 // *** Lane methods ***
 func (l *Lane) GetId() string {
@@ -90,6 +93,7 @@ func (l *Lane) GetXMLName() xml.Name { return l.XMLName }
 func (l *Lane) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) %v", B2Lane, l.Id, l.Name, l.FlowNodeRefs)
 }
+func (l *Lane) IsGateway() bool { return false }
 
 // *** ChildLaneSet methods ***
 func (cls *ChildLaneSet) GetId() string {
@@ -114,6 +118,7 @@ func (cls *ChildLaneSet) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)",
 		B2ChildLaneSet, cls.Id, cls.Name)
 }
+func (cls *ChildLaneSet) IsGateway() bool { return false }
 
 // ***  Collaboration methods ***
 func (cn *Collaboration) GetId() string {
@@ -139,6 +144,7 @@ func (cn *Collaboration) GetXMLName() xml.Name { return cn.XMLName }
 func (cn *Collaboration) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)", B2Collaboration, cn.Id, cn.Name)
 }
+func (cn *Collaboration) IsGateway() bool { return false }
 
 // *** Participant methods ***
 func (p *Participant) GetId() string {
@@ -164,6 +170,7 @@ func (p *Participant) GetXMLName() xml.Name { return p.XMLName }
 func (p *Participant) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)", B2Participant, p.Id, p.Name)
 }
+func (p *Participant) IsGateway() bool { return false }
 
 // ***  MessageFlow methods ***
 func (mf *MessageFlow) GetId() string {
@@ -189,6 +196,7 @@ func (mf *MessageFlow) GetXMLName() xml.Name { return mf.XMLName }
 func (mf *MessageFlow) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)", B2MessageFlow, mf.Id, mf.Name)
 }
+func (mf *MessageFlow) IsGateway() bool { return false }
 
 // ***  SequenceFlow methods ***
 func (sf *SequenceFlow) GetId() string {
@@ -214,6 +222,7 @@ func (sf *SequenceFlow) GetXMLName() xml.Name { return sf.XMLName }
 func (sf *SequenceFlow) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) %s --> %s", B2SequenceFlow, sf.Id, sf.Name, sf.SourceRef, sf.TargetRef)
 }
+func (sf *SequenceFlow) IsGateway() bool { return false }
 
 // ***  Group methods ***
 func (g *Group) GetId() string {
@@ -239,6 +248,7 @@ func (g *Group) GetXMLName() xml.Name { return g.XMLName }
 func (g *Group) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)", B2Group, g.Id, g.Name)
 }
+func (g *Group) IsGateway() bool { return false }
 
 // ***  Category methods ***
 func (c *Category) GetId() string {
@@ -264,6 +274,7 @@ func (c *Category) GetXMLName() xml.Name { return c.XMLName }
 func (c *Category) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)", B2Category, c.Id, c.Name)
 }
+func (c *Category) IsGateway() bool { return false }
 
 // ***  CategoryValue methods ***
 func (cv *CategoryValue) GetId() string {
@@ -289,6 +300,7 @@ func (cv *CategoryValue) GetXMLName() xml.Name { return cv.XMLName }
 func (cv *CategoryValue) ToString() string {
 	return fmt.Sprintf("%s:%s (%s)", B2CategoryValue, cv.Id, cv.Value)
 }
+func (cv *CategoryValue) IsGateway() bool { return false }
 
 // *** StartEvent methods ***
 func (se *StartEvent) GetId() string {
@@ -313,6 +325,7 @@ func (se *StartEvent) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2StartEvent, se.Id, se.Name, len(se.IncomingAssociations), len(se.OutgoingAssociations))
 }
+func (se *StartEvent) IsGateway() bool { return false }
 
 // *** EndEvent methods ***
 func (ee *EndEvent) GetId() string {
@@ -337,6 +350,7 @@ func (ee *EndEvent) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2EndEvent, ee.Id, ee.Name, len(ee.IncomingAssociations), len(ee.OutgoingAssociations))
 }
+func (ee *EndEvent) IsGateway() bool { return false }
 
 // *** Task methods ***
 func (t *Task) GetId() string {
@@ -361,6 +375,7 @@ func (t *Task) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2Task, t.Id, t.Name, len(t.IncomingAssociations), len(t.OutgoingAssociations))
 }
+func (t *Task) IsGateway() bool { return false }
 
 // *** ManualTask methods ***
 func (mt *ManualTask) GetId() string {
@@ -385,6 +400,7 @@ func (mt *ManualTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ManualTask, mt.Id, mt.Name, len(mt.IncomingAssociations), len(mt.OutgoingAssociations))
 }
+func (mt *ManualTask) IsGateway() bool { return false }
 
 // *** ScriptTask methods ***
 func (sct *ScriptTask) GetId() string {
@@ -409,6 +425,7 @@ func (sct *ScriptTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ScriptTask, sct.Id, sct.Name, len(sct.IncomingAssociations), len(sct.OutgoingAssociations))
 }
+func (sct *ScriptTask) IsGateway() bool { return false }
 
 // *** UserTask methods ***
 func (ut *UserTask) GetId() string {
@@ -433,6 +450,7 @@ func (ut *UserTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2UserTask, ut.Id, ut.Name, len(ut.IncomingAssociations), len(ut.OutgoingAssociations))
 }
+func (ut *UserTask) IsGateway() bool { return false }
 
 // *** ServiceTask methods ***
 func (svt *ServiceTask) GetId() string {
@@ -457,6 +475,7 @@ func (svt *ServiceTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ServiceTask, svt.Id, svt.Name, len(svt.IncomingAssociations), len(svt.OutgoingAssociations))
 }
+func (svt *ServiceTask) IsGateway() bool { return false }
 
 // *** BusinessRuleTask methods ***
 func (brt *BusinessRuleTask) GetId() string {
@@ -481,6 +500,7 @@ func (brt *BusinessRuleTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2BusinessRuleTask, brt.Id, brt.Name, len(brt.IncomingAssociations), len(brt.OutgoingAssociations))
 }
+func (brt *BusinessRuleTask) IsGateway() bool { return false }
 
 // *** ReceiveTask methods ***
 func (rt *ReceiveTask) GetId() string {
@@ -505,6 +525,7 @@ func (rt *ReceiveTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ReceiveTask, rt.Id, rt.Name, len(rt.IncomingAssociations), len(rt.OutgoingAssociations))
 }
+func (rt *ReceiveTask) IsGateway() bool { return false }
 
 // *** SendTask methods ***
 func (st *SendTask) GetId() string {
@@ -529,6 +550,7 @@ func (st *SendTask) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2SendTask, st.Id, st.Name, len(st.IncomingAssociations), len(st.OutgoingAssociations))
 }
+func (st *SendTask) IsGateway() bool { return false }
 
 // *** CallActivity methods ***
 func (ca *CallActivity) GetId() string {
@@ -555,6 +577,7 @@ func (ca *CallActivity) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2CallActivity, ca.Id, ca.Name, len(ca.IncomingAssociations), len(ca.OutgoingAssociations))
 }
+func (ca *CallActivity) IsGateway() bool { return false }
 
 // *** SubProcess methods ***
 func (sp *SubProcess) GetId() string {
@@ -579,6 +602,7 @@ func (sp *SubProcess) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2SubProcess, sp.Id, sp.Name, len(sp.IncomingAssociations), len(sp.OutgoingAssociations))
 }
+func (sp *SubProcess) IsGateway() bool { return false }
 
 func (pg *ParallelGateway) GetId() string {
 	return pg.Id
@@ -604,6 +628,7 @@ func (pg *ParallelGateway) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ParallelGateway, pg.Id, pg.Name, len(pg.IncomingAssociations), len(pg.OutgoingAssociations))
 }
+func (pg *ParallelGateway) IsGateway() bool { return true }
 
 func (eg *ExclusiveGateway) GetId() string {
 	return eg.Id
@@ -629,6 +654,7 @@ func (eg *ExclusiveGateway) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2ExclusiveGateway, eg.Id, eg.Name, len(eg.IncomingAssociations), len(eg.OutgoingAssociations))
 }
+func (eg *ExclusiveGateway) IsGateway() bool { return true }
 
 func (dor *DataObjectReference) GetId() string {
 	return dor.Id
@@ -656,6 +682,7 @@ func (dor *DataObjectReference) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2DataObjectReference, dor.Id, dor.Name, len(dor.IncomingAssociations), len(dor.OutgoingAssociations))
 }
+func (dor *DataObjectReference) IsGateway() bool { return false }
 
 func (do *DataObject) GetId() string {
 	return do.Id
@@ -683,6 +710,7 @@ func (do *DataObject) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2DataObject, do.Id, do.Name, len(do.IncomingAssociations), len(do.OutgoingAssociations))
 }
+func (do *DataObject) IsGateway() bool { return false }
 
 func (dsr *DataStoreReference) GetId() string {
 	return dsr.Id
@@ -710,6 +738,7 @@ func (dsr *DataStoreReference) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2DataStoreReference, dsr.Id, dsr.Name, len(dsr.IncomingAssociations), len(dsr.OutgoingAssociations))
 }
+func (dsr *DataStoreReference) IsGateway() bool { return false }
 
 func (ite *IntermediateThrowEvent) GetId() string {
 	return ite.Id
@@ -737,6 +766,7 @@ func (ite *IntermediateThrowEvent) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2IntermediateThrowEvent, ite.Id, ite.Name, len(ite.IncomingAssociations), len(ite.OutgoingAssociations))
 }
+func (ite *IntermediateThrowEvent) IsGateway() bool { return false }
 
 func (ice *IntermediateCatchEvent) GetId() string {
 	return ice.Id
@@ -764,6 +794,7 @@ func (ice *IntermediateCatchEvent) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2IntermediateCatchEvent, ice.Id, ice.Name, len(ice.IncomingAssociations), len(ice.OutgoingAssociations))
 }
+func (ice *IntermediateCatchEvent) IsGateway() bool { return false }
 
 func (ebg *EventBasedGateway) GetId() string {
 	return ebg.Id
@@ -789,3 +820,4 @@ func (ebg *EventBasedGateway) ToString() string {
 	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
 		B2EventBasedGateway, ebg.Id, ebg.Name, len(ebg.IncomingAssociations), len(ebg.OutgoingAssociations))
 }
+func (ebg *EventBasedGateway) IsGateway() bool { return true }
