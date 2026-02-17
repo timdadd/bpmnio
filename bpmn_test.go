@@ -2,10 +2,11 @@ package bpmnio
 
 import (
 	"encoding/xml"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestBPMNXML reads the BPMN files and unmarshalls them, then marshalls them and finallt ch
@@ -67,6 +68,21 @@ func TestBPMNXML(t *testing.T) {
 			{Id: "R_CD_CAM_CAS_D3AP_ZlQvTg", Type: "business", Code: "A-2-1", Name: "Customer Type Changes Allowed", Description: "Changes allowed configured by Customer Type & User Access Control"},
 			{Id: "R_CD_CAM_CAS_D3AP_ZlQvTw", Type: "business", Code: "A-3-2", Name: "Subscriber/Line Account Status", Description: "CRM Subscriber Status in Active"},
 		}
+		implementations := []Implementation{
+			{Type: "csvReader", Configuration: `{
+"filename": "leaseData/adj*.txt",
+"comma": "|"
+}`},
+		}
+
+		t.Logf("\nProcess Implementation:")
+		be := origD.FindBaseElementById("Id_67b8f4b1-f016-4e3d-a1b9-d273dcd7fd00")
+		assert.NotNil(t, be, "Base element with process configuration not found")
+		ee := be.GetExtensionElement()
+		assert.NotNil(t, ee, "Base extension element not found")
+		implementation := ee.Implementation
+		assert.Equal(t, implementations[0].Type, implementation.Type)
+		assert.Equal(t, implementations[0].Configuration, implementation.Configuration)
 
 		t.Logf("\nRules:")
 		assert.Len(t, origD.GetRules(), len(rules))
@@ -333,7 +349,7 @@ func TestBPMNXML(t *testing.T) {
 		//}
 
 		// Check we can't find a baseElement
-		be := origD.FindBaseElementById("tim")
+		be = origD.FindBaseElementById("tim")
 		assert.Nil(t, be, "could not find base element should be NIL")
 
 		break

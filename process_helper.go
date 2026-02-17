@@ -54,7 +54,7 @@ func (p *Process) FindNodes() map[string]BaseElement {
 	for _, nodeType := range nodeTypes {
 		nodeTypeMap[nodeType] = true
 	}
-	nodeTypeMap[B2SubProcess] = false
+	nodeTypeMap[B2SubProcess] = false // Ignore the sub-process node
 	return p.MapBEs(nodeTypeMap)
 }
 

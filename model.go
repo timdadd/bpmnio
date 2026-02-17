@@ -540,9 +540,16 @@ type TimeDuration struct {
 }
 
 type ExtensionElements struct {
-	XMLName      xml.Name `xml:"extensionElements"`
-	DisplayOrder int      `xml:"displayOrder,attr"`
-	Rules        *Rules   `xml:"rules,omitempty"`
+	XMLName        xml.Name        `xml:"extensionElements"`
+	DisplayOrder   int             `xml:"displayOrder,attr"`
+	Rules          *Rules          `xml:"rules,omitempty"`
+	Implementation *Implementation `xml:"implementation,omitempty"`
+}
+
+type Implementation struct {
+	XMLName       xml.Name `xml:"implementation"`
+	Type          string   `xml:"type,attr"`
+	Configuration string   `xml:"configuration,attr"`
 }
 
 type Rules struct {

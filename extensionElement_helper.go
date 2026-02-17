@@ -15,3 +15,10 @@ func (ee *ExtensionElements) GetDisplayOrder() int {
 	}
 	return 0 // 0 Default
 }
+
+func (ee *ExtensionElements) GetImplementation() *Implementation {
+	if ee != nil && ee.Implementation != nil {
+		return ee.Implementation
+	}
+	return nil // No definition
+}
