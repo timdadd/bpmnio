@@ -1,8 +1,9 @@
 package bpmnio
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestElementType(t *testing.T) {
@@ -26,6 +27,8 @@ func TestElementType(t *testing.T) {
 		B2ServiceTask:            "serviceTask",
 		B2ParallelGateway:        "parallelGateway",
 		B2ExclusiveGateway:       "exclusiveGateway",
+		B2InclusiveGateway:       "inclusiveGateway",
+		B2ComplexGateway:         "complexGateway",
 		B2IntermediateCatchEvent: "intermediateCatchEvent",
 		B2EventBasedGateway:      "eventBasedGateway",
 		B2CallActivity:           "callActivity",

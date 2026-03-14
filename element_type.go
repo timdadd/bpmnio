@@ -38,6 +38,7 @@ const (
 	B2ServiceTask            ElementType = "SERVICE_TASK"
 	B2ParallelGateway        ElementType = "PARALLEL_GATEWAY"
 	B2ExclusiveGateway       ElementType = "EXCLUSIVE_GATEWAY"
+	B2InclusiveGateway       ElementType = "INCLUSIVE_GATEWAY"
 	B2ComplexGateway         ElementType = "COMPLEX_GATEWAY"
 	B2DataObjectReference    ElementType = "DATA_OBJECT_REFERENCE"
 	B2DataObject             ElementType = "DATA_OBJECT"
@@ -73,6 +74,8 @@ var elmCatMap = map[ElementType]ElementCategory{
 	B2ServiceTask:            Activity,
 	B2ParallelGateway:        Gateway,
 	B2ExclusiveGateway:       Gateway,
+	B2InclusiveGateway:       Gateway,
+	B2ComplexGateway:         Gateway,
 	B2DataObjectReference:    Artifact,
 	B2DataObject:             Artifact,
 	B2DataStoreReference:     Artifact,

@@ -1,8 +1,9 @@
 package bpmnio
 
 import (
-	"depgraph"
 	"fmt"
+
+	depgraph "github.com/timdadd/depgraph"
 )
 
 // FindSequenceFlows finds all the sequence flows in the process and sub processes of the process

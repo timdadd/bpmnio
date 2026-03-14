@@ -207,6 +207,12 @@ func (p *Process) ApplyFunctionToBaseElements(f func(element BaseElement) bool) 
 		for _, exclusiveGateway := range p.ExclusiveGateways {
 			f(exclusiveGateway)
 		}
+		for _, inclusiveGateway := range p.InclusiveGateways {
+			f(inclusiveGateway)
+		}
+		for _, complexGateway := range p.ComplexGateways {
+			f(complexGateway)
+		}
 		for _, dataObjectReference := range p.DataObjectReferences {
 			f(dataObjectReference)
 		}
@@ -278,6 +284,12 @@ func (sp *SubProcess) ApplyFunctionToBaseElements(f func(element BaseElement) bo
 		}
 		for _, exclusiveGateway := range sp.ExclusiveGateways {
 			f(exclusiveGateway)
+		}
+		for _, inclusiveGateway := range sp.InclusiveGateways {
+			f(inclusiveGateway)
+		}
+		for _, complexGateway := range sp.ComplexGateways {
+			f(complexGateway)
 		}
 		for _, dataObjectReference := range sp.DataObjectReferences {
 			f(dataObjectReference)
