@@ -656,6 +656,32 @@ func (eg *ExclusiveGateway) ToString() string {
 }
 func (eg *ExclusiveGateway) IsGateway() bool { return true }
 
+func (pg *ComplexGateway) GetId() string {
+	return pg.Id
+}
+func (pg *ComplexGateway) GetName() string {
+	return pg.Name
+}
+func (pg *ComplexGateway) GetDocumentation() string { return pg.Documentation }
+func (pg *ComplexGateway) GetIncomingAssociations() []string {
+	return pg.IncomingAssociations
+}
+func (pg *ComplexGateway) GetOutgoingAssociations() []string {
+	return pg.OutgoingAssociations
+}
+func (pg *ComplexGateway) GetExtensionElement() *ExtensionElements {
+	return pg.ExtensionElements
+}
+func (pg *ComplexGateway) GetType() ElementType {
+	return B2ComplexGateway
+}
+func (pg *ComplexGateway) GetXMLName() xml.Name { return pg.XMLName }
+func (pg *ComplexGateway) ToString() string {
+	return fmt.Sprintf("%s:%s (%s) ia=%d, oa=%d",
+		B2ComplexGateway, pg.Id, pg.Name, len(pg.IncomingAssociations), len(pg.OutgoingAssociations))
+}
+func (pg *ComplexGateway) IsGateway() bool { return true }
+
 func (dor *DataObjectReference) GetId() string {
 	return dor.Id
 }

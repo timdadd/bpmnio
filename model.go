@@ -166,6 +166,7 @@ type Process struct {
 	CallActivities               []*CallActivity           `xml:"callActivity"`
 	ParallelGateways             []*ParallelGateway        `xml:"parallelGateway"`
 	ExclusiveGateways            []*ExclusiveGateway       `xml:"exclusiveGateway"`
+	ComplexGateways              []*ComplexGateway         `xml:"complexGateway"`
 	DataObjectReferences         []*DataObjectReference    `xml:"dataObjectReference"`
 	DataObjects                  []*DataObject             `xml:"dataObject"`
 	DataStoreReferences          []*DataStoreReference     `xml:"dataStoreReference"`
@@ -236,6 +237,7 @@ type SubProcess struct {
 	CallActivities          []*CallActivity           `xml:"callActivity"`
 	ParallelGateways        []*ParallelGateway        `xml:"parallelGateway"`
 	ExclusiveGateways       []*ExclusiveGateway       `xml:"exclusiveGateway"`
+	ComplexGateways         []*ComplexGateway         `xml:"complexGateway"`
 	DataObjectReferences    []*DataObjectReference    `xml:"dataObjectReference"`
 	DataObjects             []*DataObject             `xml:"dataObject"`
 	DataStoreReferences     []*DataStoreReference     `xml:"dataStoreReference"`
@@ -430,6 +432,16 @@ type CallActivity struct {
 
 type ParallelGateway struct {
 	XMLName              xml.Name           `xml:"parallelGateway"`
+	Id                   string             `xml:"id,attr"`
+	Name                 string             `xml:"name,attr"`
+	IncomingAssociations []string           `xml:"incoming"`
+	OutgoingAssociations []string           `xml:"outgoing"`
+	Documentation        string             `xml:"documentation"`
+	ExtensionElements    *ExtensionElements `xml:"extensionElements"`
+}
+
+type ComplexGateway struct {
+	XMLName              xml.Name           `xml:"complexGateway"`
 	Id                   string             `xml:"id,attr"`
 	Name                 string             `xml:"name,attr"`
 	IncomingAssociations []string           `xml:"incoming"`
