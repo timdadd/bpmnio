@@ -22,3 +22,10 @@ func (ee *ExtensionElements) GetImplementation() *Implementation {
 	}
 	return nil // No definition
 }
+
+func (ee *ExtensionElements) GetForm() *Form {
+	if ee != nil && ee.Form != nil {
+		return ee.Form
+	}
+	return nil // No definition
+}

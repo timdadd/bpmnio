@@ -566,8 +566,16 @@ type TimeDuration struct {
 type ExtensionElements struct {
 	XMLName        xml.Name        `xml:"extensionElements"`
 	DisplayOrder   int             `xml:"displayOrder,attr"`
+	Form           *Form           `xml:"form"`
 	Rules          *Rules          `xml:"rules,omitempty"`
 	Implementation *Implementation `xml:"implementation,omitempty"`
+}
+
+type Form struct {
+	XMLName    xml.Name `xml:"form"`
+	FormID     string   `xml:"FormID,attr"`
+	FormDesign string   `xml:"FormDesign,attr"`
+	FormData   string   `xml:"formData,attr"`
 }
 
 type Implementation struct {
