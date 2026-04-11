@@ -326,7 +326,6 @@ func (ls *LaneSet) ApplyFunctionToBaseElements(f func(element BaseElement) bool)
 	if ls == nil {
 		return // Nothing to see here
 	}
-
 	if x := f(ls); x {
 		for _, lane := range ls.Lanes {
 			f(lane)
